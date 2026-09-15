@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux-T · Linux-TC · Linux-TPro — Debian Linux en Android</title>
+<meta name="description" content="Descarga Linux-T, Linux-TC y Linux-TPro: Debian Linux completo dentro de Android, sin root (proot). Creador: Andres MAG.">
+<style>
+  :root{
+    --bg:#050810; --panel:#0b0f14; --panel2:#111820; --chrome:#16202b;
+    --fg:#cfe3f5; --dim:#8fa6bd; --bord:#22303d; --bord2:#2f4356;
+    --green:#7ee787; --cyan:#56d4dd; --red:#ff4d4d; --red2:#c83232; --yellow:#e3b341;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--fg); font-family:var(--mono);
+    line-height:1.6; overflow-x:hidden;
+    background-image:
+      radial-gradient(900px 500px at 15% -10%, rgba(255,77,77,.16), transparent 60%),
+      radial-gradient(800px 500px at 90% 0%, rgba(86,212,221,.12), transparent 60%),
+      radial-gradient(700px 700px at 50% 120%, rgba(126,231,135,.08), transparent 60%);
+    background-attachment:fixed;
+  }
+  a{color:var(--cyan);text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* ---- top bar ---- */
+  header.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);
+    background:rgba(5,8,16,.72);border-bottom:1px solid var(--bord)}
+  header.top .wrap{display:flex;align-items:center;gap:12px;height:56px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.5px}
+  .logo svg{width:22px;height:22px}
+  .logo b{color:var(--red)}
+  .top nav{margin-left:auto;display:flex;gap:16px;font-size:13px}
+  .top nav a{color:var(--dim)}
+  .top nav a:hover{color:var(--fg)}
+
+  /* ---- hero ---- */
+  .hero{padding:64px 0 36px}
+  .kicker{color:var(--green);font-size:13px;letter-spacing:2px;text-transform:uppercase}
+  h1{font-size:clamp(30px,6vw,52px);line-height:1.06;margin:12px 0 8px;letter-spacing:-1px}
+  h1 .g{color:var(--green)}
+  h1 .r{color:var(--red)}
+  .lead{color:var(--dim);max-width:720px;font-size:16px}
+  .term{background:var(--panel);border:1px solid var(--bord);border-radius:12px;
+    margin-top:26px;box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;max-width:760px}
+  .term .bar{display:flex;gap:7px;align-items:center;padding:10px 12px;background:var(--chrome);
+    border-bottom:1px solid var(--bord)}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .term .bar span{color:var(--dim);font-size:12px;margin-left:6px}
+  .term .body{padding:16px;font-size:14px;min-height:120px}
+  .term .body .p{color:var(--green)}
+  .term .body .c{color:var(--fg)}
+  .cursor{display:inline-block;width:9px;height:17px;background:var(--green);
+    vertical-align:-2px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .badge{border:1px solid var(--bord2);background:var(--panel2);border-radius:999px;
+    padding:5px 12px;font-size:12px;color:var(--dim)}
+  .badge b{color:var(--fg)}
+
+  /* ---- cards ---- */
+  section.dl{padding:26px 0 10px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+  .card{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--bord);border-radius:16px;padding:22px;display:flex;flex-direction:column;
+    transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+  .card:hover{transform:translateY(-4px);border-color:var(--bord2);
+    box-shadow:0 18px 50px rgba(0,0,0,.55)}
+  .card.pro{border-color:rgba(255,77,77,.5)}
+  .card.pro:hover{box-shadow:0 18px 55px rgba(255,77,77,.18)}
+  .card.tc{border-color:rgba(86,212,221,.35)}
+  .card .ico{font-size:30px;line-height:1}
+  .card h2{font-size:22px;margin:12px 0 2px;letter-spacing:-.5px}
+  .card .sub{color:var(--dim);font-size:12.5px;min-height:34px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+  .tag{font-size:11px;border:1px solid var(--bord);border-radius:6px;padding:3px 7px;color:var(--dim)}
+  .tag.hot{border-color:rgba(255,77,77,.5);color:#ffb0b0}
+  .tag.ok{border-color:rgba(126,231,135,.4);color:#bdf5c2}
+  ul.feat{list-style:none;margin:6px 0 16px;padding:0;font-size:13px;color:var(--dim)}
+  ul.feat li{position:relative;padding-left:20px;margin:6px 0}
+  ul.feat li:before{content:"▸";position:absolute;left:0;color:var(--green)}
+  .meta{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);
+    border-top:1px dashed var(--bord);padding-top:12px;margin-top:auto}
+  .btn{display:block;text-align:center;margin-top:14px;padding:13px 16px;border-radius:11px;
+    font-weight:700;font-size:14px;color:#fff;letter-spacing:.3px;
+    background:linear-gradient(180deg,#DE3C3C,#B92A2A);border:1px solid #DE3C3C;
+    box-shadow:0 8px 22px rgba(222,60,60,.28);transition:filter .15s}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.alt{background:linear-gradient(180deg,#10323a,#0c2229);border-color:#1d5866;color:#bfeef4;
+    box-shadow:0 8px 22px rgba(86,212,221,.12)}
+  .btn.plain{background:linear-gradient(180deg,#1b2733,#141d26);border-color:var(--bord2);color:var(--fg);
+    box-shadow:none}
+
+  /* ---- info / footer ---- */
+  section.info{padding:38px 0}
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .note{background:var(--panel);border:1px solid var(--bord);border-radius:14px;padding:18px;font-size:13px;color:var(--dim)}
+  .note h3{margin:0 0 8px;color:var(--fg);font-size:14px}
+  .note code{background:var(--bg);border:1px solid var(--bord);border-radius:5px;padding:1px 5px;color:var(--green)}
+  footer{border-top:1px solid var(--bord);padding:26px 0 40px;color:var(--dim);font-size:13px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  footer b{color:var(--fg)}
+  @media(max-width:840px){
+    .grid{grid-template-columns:1fr}
+    .info-grid{grid-template-columns:1fr}
+    .top nav{display:none}
+    .hero{padding:44px 0 24px}
+  }
+
+  /* ---- botón ghost + modal de documentación ---- */
+  .btn.ghost{background:transparent;border:1px solid var(--bord2);color:var(--fg);box-shadow:none}
+  .btn.ghost:hover{filter:none;border-color:var(--cyan);color:var(--cyan)}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;z-index:50;
+    align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
+  .modal.open{display:flex}
+  .modal-card{width:100%;max-width:820px;max-height:88vh;display:flex;flex-direction:column;
+    background:var(--panel);border:1px solid var(--bord2);border-radius:16px;overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .modal-bar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--chrome);
+    border-bottom:1px solid var(--bord)}
+  .modal-bar span{font-weight:700}
+  .modal-x{margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:20px;cursor:pointer}
+  .modal-x:hover{color:var(--fg)}
+  .docview{padding:18px 22px;overflow:auto;font-size:13.5px;line-height:1.65}
+  .docview h1{font-size:21px;margin:2px 0 10px}
+  .docview h2{font-size:17px;margin:18px 0 8px;color:var(--green);border-bottom:1px solid var(--bord);padding-bottom:4px}
+  .docview h3{font-size:15px;margin:14px 0 6px;color:var(--cyan)}
+  .docview h4{font-size:13.5px;margin:12px 0 4px}
+  .docview ul,.docview ol{margin:7px 0;padding-left:20px}
+  .docview li{margin:3px 0}
+  .docview code{background:var(--bg);border:1px solid var(--bord);border-radius:4px;padding:0 4px;font-size:12px;color:var(--green)}
+  .docview pre{background:var(--bg);border:1px solid var(--bord);border-radius:8px;padding:10px;overflow:auto}
+  .docview pre code{border:none;background:transparent;padding:0;color:var(--fg)}
+  .docview table{border-collapse:collapse;width:100%;margin:9px 0;font-size:12.5px}
+  .docview th,.docview td{border:1px solid var(--bord);padding:5px 8px;text-align:left;vertical-align:top}
+  .docview th{background:var(--chrome2)}
+  .docview a{color:var(--cyan)}
+  .docview blockquote{border-left:3px solid var(--bord2);margin:8px 0;padding:2px 10px;color:var(--dim)}
+  .docview hr{border:none;border-top:1px solid var(--bord);margin:14px 0}
+  .docview p{margin:7px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="logo">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><linearGradient id="oclg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ff4d4d"/><stop offset="1" stop-color="#991b1b"/></linearGradient></defs>
+        <path d="M60 10 C30 10 15 35 15 55 C15 75 30 95 45 100 L45 110 L55 110 L55 100 C55 100 60 102 65 100 L65 110 L75 110 L75 100 C90 95 105 75 105 55 C105 35 90 10 60 10Z" fill="url(#oclg)"/>
+        <path d="M20 45 C5 40 0 50 5 60 C10 70 20 65 25 55 C28 48 25 45 20 45Z" fill="url(#oclg)"/>
+        <path d="M100 45 C115 40 120 50 115 60 C110 70 100 65 95 55 C92 48 95 45 100 45Z" fill="url(#oclg)"/>
+        <circle cx="45" cy="35" r="6" fill="#050810"/><circle cx="75" cy="35" r="6" fill="#050810"/>
+        <circle cx="46" cy="34" r="2.5" fill="#00e5cc"/><circle cx="76" cy="34" r="2.5" fill="#00e5cc"/>
+      </svg>
+      <span>Linux-<b>T</b> / <b>TC</b> / <b>Pro</b></span>
+    </div>
+    <nav>
+      <a href="#descargas">Descargas</a>
+      <a href="#info">Requisitos</a>
+      <a href="#" onclick="openDoc('pro');return false">Documentación</a>
+      <a href="#pie">Creador</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <div class="kicker">// debian bookworm · arm64 · sin root</div>
+  <h1><span class="g">Debian</span> Linux completo<br>dentro de tu <span class="r">Android</span>.</h1>
+  <p class="lead">Tres ediciones con <b>terminal real</b> (xterm.js + PTY nativo) y motor
+     <b>proot</b>: binarios ARM64 nativos, sin emulación, sin root. Todo empaquetado en el APK.</p>
+
+  <div class="term">
+    <div class="bar"><i class="dot r"></i><i class="dot y"></i><i class="dot g"></i>
+      <span>root@linux-t: ~</span></div>
+    <div class="body">
+      <div><span class="p">$</span> <span class="c" id="typed"></span><span class="cursor"></span></div>
+      <div id="out" style="color:var(--dim);margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div class="badges">
+    <span class="badge">Android <b>9+</b></span>
+    <span class="badge"><b>arm64-v8a</b></span>
+    <span class="badge">RAM <b>4 GB</b></span>
+    <span class="badge">Sin root · <b>proot</b></span>
+  </div>
+</div>
+
+<section class="dl wrap" id="descargas">
+  <div class="kicker">// descargas</div>
+  <h2 style="font-size:22px;margin:6px 0 4px">Elige tu edición</h2>
+
+  <div class="grid">
+
+    <!-- Linux-T -->
+    <div class="card">
+      <div class="ico">🖥️</div>
+      <h2>Linux-T</h2>
+      <div class="sub">Edición base: terminal Debian, ligera (~19 MB).</div>
+      <div class="tags">
+        <span class="tag ok">~19 MB</span><span class="tag">v0.4.4</span>
+      </div>
+      <ul class="feat">
+        <li>Debian bookworm arm64 empaquetado</li>
+        <li>Terminal real + pestañas y 6 temas</li>
+        <li>Monitor del sistema</li>
+        <li>Visor de documentación integrado</li>
+      </ul>
+      <div class="meta"><span>APK debug</span><span>code 18</span></div>
+      <a class="btn plain" target="_blank" rel="noopener"
+         href="https://mega.nz/folder/8f51QKxI#dOvUA8vteT5b_OHyz9hZtw">⬇ Descargar Linux-T (MEGA)</a>
+      <button class="btn ghost" onclick="openDoc('t')">📖 Ver documentación</button>
+    </div>
+
+    <!-- Linux-TC -->
+    <div class="card tc">
+      <div class="ico">🦞</div>
+      <h2>Linux-TC</h2>
+      <div class="sub">Linux-T + <b>OpenClaw</b> (agente IA) y bot de Telegram.</div>
+      <div class="tags">
+        <span class="tag ok">~135 MB</span><span class="tag">v0.4.9</span>
+        <span class="tag hot">OpenClaw</span>
+      </div>
+      <ul class="feat">
+        <li>Todo lo de Linux-T</li>
+        <li>Node.js v24 + OpenClaw preinstalados</li>
+        <li>Panel: API key, bot Telegram, gateway</li>
+        <li>Gateway en 2º plano con watchdog</li>
+      </ul>
+      <div class="meta"><span>APK debug</span><span>code 23</span></div>
+      <a class="btn alt" target="_blank" rel="noopener"
+         href="https://mega.nz/folder/UXYCUS4A#xIhcfw3blovIvmhjB5Xv8g">⬇ Descargar Linux-TC (MEGA)</a>
+      <button class="btn ghost" onclick="openDoc('tc')">📖 Ver documentación</button>
+    </div>
+
+    <!-- Linux-TPro -->
+    <div class="card pro">
+      <div class="ico">🐧</div>
+      <h2>Linux-TPro</h2>
+      <div class="sub">Edición Pro: todo empaquetado, sin descargas extra.</div>
+      <div class="tags">
+        <span class="tag hot">~267 MB</span><span class="tag">v1.0.4</span>
+        <span class="tag hot">OpenClaw</span>
+      </div>
+      <ul class="feat">
+        <li>Debian + Node + OpenClaw incluidos</li>
+        <li>Perfiles de paquetes (Básico / Dev)</li>
+        <li>Copiar logs del terminal</li>
+        <li>Visor de documentación integrado</li>
+      </ul>
+      <div class="meta"><span>APK debug</span><span>code 5</span></div>
+      <a class="btn" target="_blank" rel="noopener"
+         href="https://mega.nz/folder/gDp1USDI#I-N4ByWtnb__IEg46nEQvQ">⬇ Descargar Linux-TPro (MEGA)</a>
+      <button class="btn ghost" onclick="openDoc('pro')">📖 Ver documentación</button>
+    </div>
+
+  </div>
+</section>
+
+<section class="info wrap" id="info">
+  <div class="kicker">// antes de instalar</div>
+  <div class="info-grid" style="margin-top:14px">
+    <div class="note">
+      <h3>✅ Requisitos</h3>
+      Android 9 (API 28) o superior · CPU <code>arm64-v8a</code> · ~4 GB de RAM ·
+      ~1–1.5 GB libres (extracción del sistema la primera vez).
+    </div>
+    <div class="note">
+      <h3>📲 Instalación</h3>
+      Descarga el APK, permite "instalar apps de fuentes desconocidas" y ábrelo.
+      Cada edición tiene su propio <code>applicationId</code>, así que se instalan
+      <b>encima sin desinstalar</b> al actualizar.
+    </div>
+    <div class="note">
+      <h3>🗄️ Alojamiento</h3>
+      Los APK se alojan en <b>MEGA</b> (enlaces de carpeta permanentes).
+      Si algún enlace deja de funcionar, avísame y lo actualizo.
+    </div>
+  </div>
+</section>
+
+<footer id="pie">
+  <div class="wrap">
+    <div>Creador: <b>Andres MAG</b> · Linux-T / Linux-TC / Linux-TPro</div>
+    <div>Debian Linux en Android (proot) · APK debug con fines de prueba</div>
+  </div>
+</footer>
+
+
+<div id="docModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-bar">
+      <span id="docTitle">📖 Documentación</span>
+      <button class="modal-x" onclick="closeDoc()">✕</button>
+    </div>
+    <div id="docBody" class="docview"></div>
+  </div>
+</div>
+
+<script>
+  // efecto de escritura en el terminal
+  (function(){
+    var lines = [
+      "apt install linux-t",
+      "./linux-tpro --setup",
+      "openclaw gateway"
+    ];
+    var typed = document.getElementById('typed');
+    var out = document.getElementById('out');
+    var li = 0, ci = 0, deleting = false;
+    function tick(){
+      var cur = lines[li];
+      if(!deleting){
+        typed.textContent = cur.slice(0, ++ci);
+        if(ci === cur.length){ deleting = true; setTimeout(tick, 1200); return; }
+        setTimeout(tick, 70);
+      } else {
+        if(ci === cur.length){
+          out.innerHTML = '> listo · <span style="color:#7ee787">Debian en tu Android.</span>';
+        }
+        typed.textContent = cur.slice(0, --ci);
+        if(ci === 0){ deleting = false; li = (li+1)%lines.length; setTimeout(tick, 300); return; }
+        setTimeout(tick, 32);
+      }
+    }
+    setTimeout(tick, 500);
+  })();
+</script>
+
+<script>
+const DOCS = {"t": {"title": "Linux-T", "md": "# Linux-T — Documentación técnica\n\n**Debian Linux completo dentro de Android, sin root.**\n\n- **Creador:** Andres MAG\n- **Paquete:** `io.debi` · **namespace:** `io.debi`\n- **Versión actual:** `0.4.2` (versionCode `16`)\n- **Plataforma:** Android 9+ (API 28) · **arm64-v8a** (aarch64) · mínimo ~4 GB de RAM\n\n> Linux-T es la **edición base** (terminal, sin OpenClaw). Para la edición con OpenClaw\n> integrado ver **Linux-TC**; para la edición Pro ver **Linux-TPro**.\n\n---\n\n## Índice\n\n1. [Qué es](#1-qué-es)\n2. [Características](#2-características)\n3. [Requisitos](#3-requisitos)\n4. [Arquitectura](#4-arquitectura)\n5. [Estructura del proyecto](#5-estructura-del-proyecto)\n6. [Cómo funciona internamente](#6-cómo-funciona-internamente)\n7. [Interfaz de usuario](#7-interfaz-de-usuario)\n8. [Compilación](#8-compilación)\n9. [Generación del rootfs](#9-generación-del-rootfs)\n10. [Versionado y releases](#10-versionado-y-releases)\n11. [Solución de problemas](#11-solución-de-problemas)\n12. [Distribución](#12-distribución)\n\n---\n\n## 1. Qué es\n\n**Linux-T** es una app Android que ejecuta un **sistema Debian completo** (filesystem +\nterminal interactivo) empaquetado dentro del propio APK. No necesita root, ni conexión a\ninternet para funcionar (todo viene incluido), ni pasos manuales de instalación.\n\n### Por qué proot y no chroot\n\nAndroid **sin root bloquea `chroot` y los namespaces** (SELinux + restricciones del kernel).\nLa solución estándar del sector (Termux → `proot-distro`) es **PRoot**:\n\n- PRoot intercepta las syscalls (`ptrace` + `seccomp`) y **emula un rootfs**.\n- Los binarios se ejecutan **nativos ARM64** (no hay emulación tipo QEMU) → velocidad real.\n- No requiere root.\n\n---\n\n## 2. Características\n\n- 🐧 **Debian bookworm arm64** completo empaquetado en el APK (una sola extracción la primera vez).\n- 🖥️ **Terminal interactivo** con xterm.js + PTY nativo (terminal **real**, no un wrapper).\n- 🗂️ **Pestañas (secciones)** independientes: cada una es una sesión bash viva. Se pueden\n  **anclar** como favoritas.\n- 🎨 **6 temas** de terminal: Clásico, Dracula, Solarized, Gruvbox, Nord y Papel.\n- 🧩 **Perfiles de paquetes**: Básico y Dev (se instalan/verifican desde Ajustes).\n- 📊 **Monitor** de memoria, almacenamiento, carga y núcleos.\n- 📱 **Segundo plano real**: servicio en primer plano + wake/wifi lock (las sesiones siguen\n  vivas al salir de la app).\n- 🔌 Acceso a **/sdcard** y **/root/storage** desde el terminal.\n\n---\n\n## 3. Requisitos\n\n### Del dispositivo\n\n| Requisito | Valor |\n|---|---|\n| Android | 9 (API 28) o superior |\n| Arquitectura | **arm64-v8a (aarch64)** obligatorio |\n| RAM | 4 GB recomendado mínimo |\n| Almacenamiento | ~500 MB – 1 GB libres (extracción del rootfs) |\n\n> Los equipos **arm32-only** quedan fuera: Debian moderno no tiene usuario arm32 viable.\n\n### Del host de compilación\n\n- JDK 17\n- Android SDK (build-tools, platform 35, NDK `26.3.11579264`, CMake 3.22.1)\n- Gradle 8.13 (wrapper en `~/.gradle/wrapper/dists`), AGP 8.12.0, Kotlin 2.1.21\n- `local.properties` con `sdk.dir=<ruta Android SDK>`\n\nPara **regenerar el rootfs** además: `bash`, `curl`, `tar`, `xz`, `docker`.\n\n---\n\n## 4. Arquitectura\n\n```\n┌──────────────────────────────────────────────────────────────┐\n│                       Android (app io.debi)                   │\n│                                                              │\n│  MainActivity (Activity)                                     │\n│   └── WebView  ── file:///android_asset/web/index.html       │\n│         · xterm.js (render terminal)                         │\n│         · puente JS ↔ Kotlin:  window.Android.*              │\n│                                                              │\n│  Bridge (JavascriptInterface)                                │\n│   · ready / newTab / selectTab / closeTab                    │\n│   · send / resize / runLine                                  │\n│   · sysStats / bgStatus / bgRequestBattery                   │\n│                                                              │\n│  Term (singleton)  ── gestor de sesiones                     │\n│   · hasta 10 sesiones, buffer circular 512 KB                │\n│   · procshim: bind de /proc/stat,/uptime,/loadavg            │\n│                                                              │\n│  RootfsInstaller  ── extrae proot + rootfs la 1ª vez         │\n│  TermProcessService ── foreground service + wake/wifi lock   │\n│  Pty (JNI libptyexec.so) ── PTY nativo fork/exec             │\n└───────────────────────────┬──────────────────────────────────┘\n                            │ proot (ptrace/seccomp)\n                            ▼\n┌──────────────────────────────────────────────────────────────┐\n│  filesDir/rootfs  =  Debian bookworm arm64                   │\n│  (/bin/bash, apt, python3, …)                                │\n│  binds: /dev /proc /sys  ·  /sdcard  ·  /root/storage        │\n└──────────────────────────────────────────────────────────────┘\n```\n\n### Por qué targetSdk = 28\n\nAndroid 10+ **bloquea el `exec` de binarios** alojados en el directorio privado de la app\ncuando `targetSdk >= 29`. PRoot necesita ejecutar binarios desde `/data/data/io.debi/files/…`.\nPor eso `targetSdk = 28` (mismo truco que Termux). Se mantiene `compileSdk = 35`.\n\n---\n\n## 5. Estructura del proyecto\n\n```\ndebian-android/            # (proyecto Linux-T)\n├── README.md\n├── DOCUMENTACION.md       # este documento\n├── scripts/\n│   ├── build-rootfs.sh        # rootfs Debian base (desde imagen Docker oficial)\n│   ├── make-icon.py           # genera iconos\n│   └── patch-paths.py         # reescribe rutas en binarios proot (Termux→io.debi)\n├── dist/                  # artefactos del rootfs (.tar, .tar.xz, meta)\n└── app/                   # proyecto Android (Gradle/Kotlin)\n    └── app/src/main/\n        ├── AndroidManifest.xml\n        ├── cpp/              # ptyexec.c + CMakeLists.txt (PTY nativo)\n        ├── jniLibs/arm64-v8a/ # libtalloc.so, libandroid-shmem.so\n        ├── java/io/debi/\n        │   ├── MainActivity.kt        # WebView + puente Android\n        │   ├── Term.kt                # gestor de sesiones proot\n        │   ├── RootfsInstaller.kt     # extracción/instalación del runtime\n        │   ├── TermProcessService.kt  # servicio en primer plano\n        │   └── Pty.kt                 # puente JNI\n        └── assets/\n            ├── web/          # index.html, xterm.js, addon-fit.js, xterm.css\n            ├── proot/        # bin/proot, libexec/proot/loader(32), lib/*.so\n            └── rootfs/       # debian-bookworm-arm64.tar.xz\n```\n\n---\n\n## 6. Cómo funciona internamente\n\n### 6.1 Instalación del runtime (una sola vez)\n\n`RootfsInstaller.install()` se ejecuta en el primer arranque:\n\n1. **Siempre** copia/refresca `assets/proot/` → `filesDir/usr/` (proot + loaders + libs) y les\n   da permisos de ejecución.\n2. Genera `filesDir/etc/resolv.conf` con los **DNS reales del sistema Android** (fallback\n   `1.1.1.1` / `8.8.8.8`).\n3. **Si el esquema cambió** (`ROOTFS_SCHEMA`), borra el rootfs anterior y extrae\n   `assets/rootfs/debian-bookworm-arm64.tar.xz` (con `commons-compress` + `xz`), resolviendo\n   **symlinks y hardlinks** (con fallback a copia).\n4. Escribe el marcador `filesDir/.installed` con el número de esquema.\n\n> **Importante:** al cambiar el rootfs o el extractor hay que **subir `ROOTFS_SCHEMA`** en\n> `RootfsInstaller.kt` para forzar la re-extracción en dispositivos que ya lo tenían.\n\n### 6.2 Sesiones (Term.kt)\n\n- Cada **pestaña = una sesión** con su propio proceso `bash` dentro de proot.\n- Máximo **10 sesiones simultáneas** (`MAX_SESSIONS`).\n- La sesión **activa** entrega su salida en directo a la UI; las **inactivas** acumulan en un\n  **buffer circular de 512 KB** que se vuelca al volver a esa pestaña.\n- Cambiar de pestaña **nunca** cierra las demás.\n- El singleton vive fuera de la Activity → las sesiones **sobreviven** a que la app pase a 2º plano.\n\n### 6.3 Puente /proc (htop/top)\n\nAndroid niega `/proc/stat`, `/proc/uptime` y `/proc/loadavg` a las apps, así que `htop`/`top` no\npodrían leerlos dentro del guest. Si la propia app **sí** puede leerlos, se sirve una copia\nrefrescada cada segundo y se **bindean** como `/proc/stat` etc. dentro de proot.\n\n### 6.4 PTY nativo (ptyexec.c)\n\n- `Pty.create()` abre `/dev/ptmx`, hace `fork()`, y en el hijo: `setsid`, `TIOCSCTTY`, `dup2` de\n  stdin/stdout/stderr al pts y `TIOCSWINSZ` (tamaño de terminal).\n- Expone `read`/`write`/`resize`/`close`/`waitpid`/`kill` a Kotlin.\n- Resultado: un **terminal real** (colores, control de job, `Ctrl+C`, etc.).\n\n### 6.5 Argumentos de proot (`prootArgv`)\n\n```\nproot --kill-on-exit --link2symlink -0 -r <filesDir/rootfs>\n      -b /dev -b /proc [-b <shim /proc…>] -b /sys\n      -b <filesDir/etc/resolv.conf>:/etc/resolv.conf\n      -b <sdcard>:/sdcard -b <sdcard>:/root/storage\n      -w /root  /usr/bin/env -i HOME=/root PATH=… TERM=xterm-256color LANG=C.UTF-8\n      /bin/bash -l\n```\n\n### 6.6 Servicio en primer plano\n\n`TermProcessService` mantiene vivo el proceso Debian en segundo plano:\n\n- **Notificación persistente** \"Debian en ejecución\" con botón **Detener**.\n- **Wake lock** + **wifi lock** (se cogen solo cuando hay sesiones activas).\n- `onTaskRemoved`: no se para al quitar la app de recientes.\n\n---\n\n## 7. Interfaz de usuario\n\nLa UI es una **WebView** que carga `assets/web/index.html` (xterm.js + `addon-fit`).\n\n- **Barra superior:** selector de secciones + ☆ (anclar), ＋ (nueva), ✕ (cerrar); herramientas\n  **📊 Monitor** y **⚙ Ajustes**.\n- **Barra de teclas:** `Esc` · `Tab` · `Ctrl` · flechas · `|` · `/` · `-` · `⌫ línea`.\n- **Ajustes (⚙):**\n  - **Tema del terminal** (6 temas).\n  - **Perfiles de instalación:** Básico y Dev.\n  - **Segundo plano:** petición de exención de optimización de batería.\n  - **Documentación:** resumen del proyecto desplegable.\n  - **Acerca de:** `Linux-T` — Debian Linux en Android (proot) · **Creador: Andres MAG**.\n- **Monitor (📊):** memoria, almacenamiento, carga (1/5/15) y núcleos.\n\n### Puente JS ↔ Android (`window.Android`)\n\n| Método | Función |\n|---|---|\n| `ready()` | La UI está lista → abre/activa la sección |\n| `newTab()` / `selectTab(id)` / `closeTab(id)` | Gestión de pestañas |\n| `send(b64)` / `resize(c,r)` / `runLine(line)` | E/S del terminal |\n| `sysStats()` | JSON con memoria/disco/carga/núcleos |\n| `bgStatus()` / `bgRequestBattery()` | Estado/petición del 2º plano |\n\n---\n\n## 8. Compilación\n\n### Comando de build (debug)\n\n```bash\ncd app\nexport ANDROID_HOME=~/Android/Sdk\nGRADLE=$(ls -d ~/.gradle/wrapper/dists/gradle-8.13-bin/*/gradle-8.13/bin/gradle)\n$GRADLE :app:assembleDebug --console=plain\n```\n\nSalida (se renombra automáticamente):\n\n```\napp/app/build/outputs/apk/debug/Linux-T-<versionName>-debug.apk\n```\n\n### Configuración clave (`app/app/build.gradle.kts`)\n\n| Campo | Valor |\n|---|---|\n| `applicationId` | `io.debi` |\n| `namespace` | `io.debi` |\n| `minSdk` / `targetSdk` / `compileSdk` | 28 / 28 / 35 |\n| `abiFilters` | `arm64-v8a` |\n| `versionCode` / `versionName` | 16 / `0.4.2` |\n| Dependencias | `commons-compress:1.21`, `xz:1.9` |\n| Firma (release) | config `debug` (⚠️ pendiente keystore propio) |\n\n---\n\n## 9. Generación del rootfs\n\n### Rootfs base (`scripts/build-rootfs.sh`)\n\nExporta la imagen oficial `arm64v8/debian:bookworm` con Docker (evita `debootstrap`+`qemu`):\n\n```bash\nscripts/build-rootfs.sh\n# → dist/debian-bookworm-arm64.tar(.xz) + dist/rootfs-meta.json (sha256)\n```\n\n### Iconos (`scripts/make-icon.py`)\n\nGenera los mipmaps (legacy, foreground adaptativo y roundIcon).\n\n### `patch-paths.py`\n\nReescribe strings de rutas en binarios de Termux para adaptarlos a `io.debi`\n(`/data/data/com.termux/files/usr` → `/data/data/io.debi/files/usr`), sin desplazar secciones ELF.\n\n> Tras regenerar el rootfs: **sube `ROOTFS_SCHEMA`** en `RootfsInstaller.kt`.\n\n---\n\n## 10. Versionado y releases\n\n- Se incrementa **`versionCode`** (entero, +1) y **`versionName`** (semántico) en\n  `app/app/build.gradle.kts`.\n- Como el `applicationId` no cambia (`io.debi`), cada build **se instala encima** de la anterior\n  **sin desinstalar** (misma firma).\n- El APK final se renombra a `Linux-T-<versionName>-<buildType>.apk`.\n\n### Reparto de builds\n\nSi el APK supera el límite de Telegram (50 MB), se envía por **gofile.io**\n(ver `~/.openclaw/workspace/gofile.sh`).\n\n---\n\n## 11. Solución de problemas\n\n| Síntoma | Causa / solución |\n|---|---|\n| `Temporary failure resolving …` (apt/red) | Falta permiso `INTERNET` o el `resolv.conf`. |\n| Las sesiones se cierran al salir | Activa **Permitir 2º plano** (Ajustes). |\n| Faltan binarios tras actualizar | Sube **`ROOTFS_SCHEMA`** y reinstala para forzar re-extracción limpia. |\n| `htop`/`top` sin datos de CPU | Android bloquea `/proc/stat`; se activa el **puente /proc** si la app puede leerlo. |\n| La app se cierra en 2º plano (Xiaomi/Samsung/Huawei) | Concede la exención de batería y protege la app en recientes. |\n| APK no instala (arquitectura) | El dispositivo no es **arm64-v8a** → no soportado. |\n\n---\n\n## 12. Distribución\n\nGoogle Play **restringe apps que descargan y ejecutan código** (Device & Network Abuse) →\nTermux fue retirada. Rutas recomendadas:\n\n- **F-Droid** (ideal si el proyecto es open source).\n- **APK directo / GitHub Releases**.\n- **Amazon Appstore**.\n- Play Store: posible, pero con riesgo de rechazo/retirada.\n\n> ⚠️ Licencia: no se recomienda forkear Termux/UserLAnd tal cual (GPLv3 obliga a liberar todo el\n> código). Linux-T usa su **propio** PTY nativo (`ptyexec.c`, Apache-2.0) y el binario proot del\n> upstream.\n\n---\n\n*Documento generado para el proyecto Linux-T — Debian Linux en Android (proot). Creador: Andres MAG.*\n"}, "tc": {"title": "Linux-TC", "md": "# Linux-TC — Documentación técnica\n\n**Debian Linux completo dentro de Android, sin root — con OpenClaw integrado.**\n\n- **Creador:** Andres MAG\n- **Paquete:** `io.debi.tc` · **namespace:** `io.debi`\n- **Versión actual:** `0.4.7` (versionCode `21`)\n- **Plataforma:** Android 9+ (API 28) · **arm64-v8a** (aarch64) · mínimo ~4 GB de RAM\n\n> Linux-TC = **Linux-T + OpenClaw** (agente IA con Node.js y bot de Telegram) preinstalado en el\n> rootfs. Para la edición base sin OpenClaw ver **Linux-T**; para la edición Pro ver **Linux-TPro**.\n\n---\n\n## Índice\n\n1. [Qué es](#1-qué-es)\n2. [Características](#2-características)\n3. [Requisitos](#3-requisitos)\n4. [Arquitectura](#4-arquitectura)\n5. [Estructura del proyecto](#5-estructura-del-proyecto)\n6. [Cómo funciona internamente](#6-cómo-funciona-internamente)\n7. [Interfaz de usuario](#7-interfaz-de-usuario)\n8. [OpenClaw integrado](#8-openclaw-integrado)\n9. [Compilación](#9-compilación)\n10. [Generación del rootfs](#10-generación-del-rootfs)\n11. [Versionado y releases](#11-versionado-y-releases)\n12. [Solución de problemas](#12-solución-de-problemas)\n13. [Distribución](#13-distribución)\n\n---\n\n## 1. Qué es\n\n**Linux-TC** es una app Android que ejecuta un **sistema Debian completo** (filesystem +\nterminal interactivo) empaquetado dentro del propio APK, **sin root** y **sin conexión a\ninternet** para funcionar. Además incluye **OpenClaw** (agente IA) con **Node.js v24** ya\ninstalados en el rootfs, listos para usar desde el terminal o desde el panel de la app.\n\n### Por qué proot y no chroot\n\nAndroid **sin root bloquea `chroot` y los namespaces** (SELinux + restricciones del kernel).\nLa solución estándar del sector (Termux → `proot-distro`) es **PRoot**:\n\n- PRoot intercepta las syscalls (`ptrace` + `seccomp`) y **emula un rootfs**.\n- Los binarios se ejecutan **nativos ARM64** (no hay emulación tipo QEMU) → velocidad real.\n- No requiere root.\n\n---\n\n## 2. Características\n\n- 🐧 **Debian bookworm arm64** completo empaquetado en el APK (una sola extracción la primera vez).\n- 🖥️ **Terminal interactivo** con xterm.js + PTY nativo (terminal **real**, no un wrapper).\n- 🗂️ **Pestañas (secciones)** independientes: cada una es una sesión bash viva. Se pueden\n  **anclar** como favoritas.\n- 🎨 **6 temas** de terminal: Clásico, Dracula, Solarized, Gruvbox, Nord y Papel.\n- 🧩 **Perfiles de paquetes**: Básico y Dev (se instalan/verifican desde Ajustes).\n- 📊 **Monitor** de memoria, almacenamiento, carga y núcleos.\n- 🦞 **OpenClaw integrado** (agente IA) con Node.js v24 preinstalado, arranque del gateway en\n  segundo plano con watchdog (se relanza solo si se cae) y bot de Telegram opcional.\n- 📱 **Segundo plano real**: servicio en primer plano + wake/wifi lock.\n- 🔌 Acceso a **/sdcard** y **/root/storage** desde el terminal.\n\n---\n\n## 3. Requisitos\n\n### Del dispositivo\n\n| Requisito | Valor |\n|---|---|\n| Android | 9 (API 28) o superior |\n| Arquitectura | **arm64-v8a (aarch64)** obligatorio |\n| RAM | 4 GB recomendado mínimo |\n| Almacenamiento | ~1 – 1.5 GB libres (extracción del rootfs con Node+OpenClaw) |\n\n> Los equipos **arm32-only** quedan fuera: Debian moderno no tiene usuario arm32 viable.\n\n### Del host de compilación\n\n- JDK 17\n- Android SDK (build-tools, platform 35, NDK `26.3.11579264`, CMake 3.22.1)\n- Gradle 8.13, AGP 8.12.0, Kotlin 2.1.21\n- `local.properties` con `sdk.dir=<ruta Android SDK>`\n\nPara **regenerar el rootfs** además: `bash`, `curl`, `tar`, `xz`, `npm` moderno.\n\n---\n\n## 4. Arquitectura\n\n```\n┌──────────────────────────────────────────────────────────────┐\n│                      Android (app io.debi.tc)                 │\n│                                                              │\n│  MainActivity (Activity)                                     │\n│   └── WebView  ── file:///android_asset/web/index.html       │\n│         · xterm.js (render terminal)                         │\n│         · puente JS ↔ Kotlin:  window.Android.*              │\n│                                                              │\n│  Bridge (JavascriptInterface)                                │\n│   · ready / newTab / selectTab / closeTab                    │\n│   · send / resize / runLine                                  │\n│   · ocStatus / ocInstall / ocSetKey / ocSetTgToken /         │\n│     ocGateway / ocDoctor / ocBatteryStatus / sysStats        │\n│                                                              │\n│  Term (singleton)  ── gestor de sesiones                     │\n│   · hasta 10 sesiones, buffer circular 512 KB                │\n│   · procshim: bind de /proc/stat,/uptime,/loadavg            │\n│   · watchdog del gateway OpenClaw                            │\n│                                                              │\n│  RootfsInstaller  ── extrae proot + rootfs la 1ª vez         │\n│  TermProcessService ── foreground service + wake/wifi lock   │\n│  Pty (JNI libptyexec.so) ── PTY nativo fork/exec             │\n└───────────────────────────┬──────────────────────────────────┘\n                            │ proot (ptrace/seccomp)\n                            ▼\n┌──────────────────────────────────────────────────────────────┐\n│  filesDir/rootfs  =  Debian bookworm arm64                   │\n│  (/bin/bash, apt, python3, node, openclaw, …)                │\n│  binds: /dev /proc /sys  ·  /sdcard  ·  /root/storage        │\n└──────────────────────────────────────────────────────────────┘\n```\n\n### Por qué targetSdk = 28\n\nAndroid 10+ **bloquea el `exec` de binarios** alojados en el directorio privado de la app cuando\n`targetSdk >= 29`. PRoot necesita ejecutar binarios desde `/data/data/io.debi.tc/files/…`. Por eso\n`targetSdk = 28`. Se mantiene `compileSdk = 35`.\n\n---\n\n## 5. Estructura del proyecto\n\n```\nLinux-TC/\n├── README.md\n├── DOCUMENTACION.md       # este documento\n├── scripts/\n│   ├── build-rootfs.sh           # rootfs Debian base (desde imagen Docker oficial)\n│   ├── build-rootfs-openclaw.sh  # rootfs base + Node v24 + OpenClaw\n│   ├── make-icon.py              # genera iconos\n│   └── patch-paths.py            # reescribe rutas en binarios proot\n├── dist/                  # artefactos del rootfs (.tar, .tar.xz, meta)\n└── app/\n    └── app/src/main/\n        ├── AndroidManifest.xml\n        ├── cpp/              # ptyexec.c + CMakeLists.txt (PTY nativo)\n        ├── jniLibs/arm64-v8a/ # libtalloc.so, libandroid-shmem.so\n        ├── java/io/debi/\n        │   ├── MainActivity.kt        # WebView + puente Android\n        │   ├── Term.kt                # gestor de sesiones proot + watchdog gateway\n        │   ├── RootfsInstaller.kt     # extracción/instalación del runtime\n        │   ├── TermProcessService.kt  # servicio en primer plano\n        │   └── Pty.kt                 # puente JNI\n        └── assets/\n            ├── web/          # index.html, xterm.js, addon-fit.js, xterm.css\n            ├── proot/        # bin/proot, libexec/proot/loader(32), lib/*.so\n            ├── rootfs/       # debian-bookworm-arm64.tar.xz (con Node+OpenClaw)\n            ├── oc-templates/ # plantillas del workspace de OpenClaw\n            ├── oc-config/    # openclaw.json por defecto\n            └── oc-bin/       # oc-prepare.sh\n```\n\n---\n\n## 6. Cómo funciona internamente\n\n### 6.1 Instalación del runtime (una sola vez)\n\n`RootfsInstaller.install()` se ejecuta en el primer arranque:\n\n1. **Siempre** copia/refresca `assets/proot/` → `filesDir/usr/` y les da permisos de ejecución.\n2. Genera `filesDir/etc/resolv.conf` con los **DNS reales del sistema Android** (fallback\n   `1.1.1.1` / `8.8.8.8`).\n3. **Si el esquema cambió** (`ROOTFS_SCHEMA`), borra el rootfs anterior y extrae\n   `assets/rootfs/debian-bookworm-arm64.tar.xz`, resolviendo **symlinks y hardlinks**.\n4. Escribe el marcador `filesDir/.installed`.\n5. Copia las **plantillas del workspace** de OpenClaw y la **config por defecto**, y refresca\n   el script `oc-prepare`.\n\n> **Importante:** al cambiar el rootfs o el extractor hay que **subir `ROOTFS_SCHEMA`** en\n> `RootfsInstaller.kt`.\n\n### 6.2 Sesiones (Term.kt)\n\n- Cada **pestaña = una sesión** con su propio proceso `bash` dentro de proot.\n- Máximo **10 sesiones simultáneas** (`MAX_SESSIONS`).\n- Sesión **activa** → salida en directo; **inactivas** → buffer circular de 512 KB que se vuelca\n  al volver.\n- El singleton vive fuera de la Activity → las sesiones **sobreviven** al paso a 2º plano.\n\n### 6.3 Puente /proc (htop/top)\n\nAndroid niega `/proc/stat`, `/proc/uptime` y `/proc/loadavg` a las apps. Si la propia app **sí**\npuede leerlos, se sirve una copia refrescada cada segundo y se **bindean** dentro de proot.\n\n### 6.4 PTY nativo (ptyexec.c)\n\n`Pty.create()` abre `/dev/ptmx`, hace `fork()`, y en el hijo: `setsid`, `TIOCSCTTY`, `dup2` de\nstdin/stdout/stderr al pts y `TIOCSWINSZ`. Expone `read`/`write`/`resize`/`close`/`waitpid`/`kill`\na Kotlin.\n\n### 6.5 Argumentos de proot (`prootArgv`)\n\n```\nproot --kill-on-exit --link2symlink -0 -r <filesDir/rootfs>\n      -b /dev -b /proc [-b <shim /proc…>] -b /sys\n      -b <filesDir/etc/resolv.conf>:/etc/resolv.conf\n      -b <sdcard>:/sdcard -b <sdcard>:/root/storage\n      -w /root  /usr/bin/env -i HOME=/root PATH=… TERM=xterm-256color LANG=C.UTF-8\n      /bin/bash -l\n```\n\n### 6.6 Servicio en primer plano\n\n`TermProcessService` mantiene vivo el proceso Debian en segundo plano: notificación persistente\ncon botón **Detener**, **wake + wifi lock** (solo con sesiones activas) y `onTaskRemoved` que no\npara al quitar la app de recientes.\n\n---\n\n## 7. Interfaz de usuario\n\nLa UI es una **WebView** que carga `assets/web/index.html` (xterm.js + `addon-fit`).\n\n- **Barra superior:** selector de secciones + ☆ (anclar), ＋ (nueva), ✕ (cerrar); herramientas\n  **🦞 OpenClaw**, **📊 Monitor** y **⚙ Ajustes**.\n- **Barra de teclas:** `Esc` · `Tab` · `Ctrl` · flechas · `|` · `/` · `-` · `⌫ línea`.\n- **Ajustes (⚙):**\n  - **Tema del terminal** (6 temas).\n  - **Perfiles de instalación:** Básico y Dev.\n  - **Documentación:** resumen del proyecto desplegable.\n  - **Acerca de:** `Linux-TC` — Debian Linux en Android (proot) + OpenClaw · **Creador: Andres MAG**.\n- **Monitor (📊):** memoria, almacenamiento, carga (1/5/15) y núcleos.\n\n### Puente JS ↔ Android (`window.Android`)\n\n| Método | Función |\n|---|---|\n| `ready()` | La UI está lista → abre/activa la sección |\n| `newTab()` / `selectTab(id)` / `closeTab(id)` | Gestión de pestañas |\n| `send(b64)` / `resize(c,r)` / `runLine(line)` | E/S del terminal |\n| `sysStats()` | JSON con memoria/disco/carga/núcleos |\n| `ocStatus()` / `ocInstall()` / `ocDoctor()` | Estado/runtime de OpenClaw |\n| `ocSetKey(key,start)` / `ocSetTgToken(tok,start)` | API key / token de bot |\n| `ocGateway(on)` | Arranca/para el gateway |\n| `ocBatteryStatus()` / `ocRequestBattery()` | Estado/petición del 2º plano |\n\n---\n\n## 8. OpenClaw integrado\n\nEl rootfs incluye **Node.js v24 (arm64)** y **OpenClaw** ya instalados:\n\n- Node en `/opt/node` (symlinks en `/usr/local/bin`: `node`, `npm`, `npx`, `corepack`).\n- OpenClaw global: `/usr/local/bin/openclaw` → `/usr/local/lib/node_modules/openclaw/openclaw.mjs`.\n- Config por defecto (`assets/oc-config/openclaw.json`): gateway local en el puerto **18789**,\n  proveedor **DeepSeek** (el usuario solo mete su API key desde Ajustes → OpenClaw).\n\n### Panel OpenClaw en la app\n\n- **Dependencias:** versiones de Node.js, npm y OpenClaw (✅/❌).\n- **API key del proveedor (DeepSeek):** se guarda y arranca el gateway.\n- **Bot de Telegram (opcional):** guarda el token y reinicia el gateway.\n- **Segundo plano:** petición de exención de optimización de batería.\n- **Gateway:** interruptor para arrancar/parar. Se ejecuta en **su propia pestaña** (anclada) y\n  sigue vivo en segundo plano.\n- **Reparar (doctor):** ejecuta `oc-prepare` + `openclaw doctor --fix`.\n\n### Watchdog del gateway\n\nSi el gateway estaba activado y su proceso muere, `Term.pump()` lo **relanza solo** tras 5 s.\n\n---\n\n## 9. Compilación\n\n```bash\ncd app\nexport ANDROID_HOME=~/Android/Sdk\nGRADLE=$(ls -d ~/.gradle/wrapper/dists/gradle-8.13-bin/*/gradle-8.13/bin/gradle)\n$GRADLE :app:assembleDebug --console=plain\n# → app/app/build/outputs/apk/debug/Linux-TC-<versionName>-debug.apk\n```\n\n### Configuración clave (`app/app/build.gradle.kts`)\n\n| Campo | Valor |\n|---|---|\n| `applicationId` | `io.debi.tc` |\n| `namespace` | `io.debi` |\n| `minSdk` / `targetSdk` / `compileSdk` | 28 / 28 / 35 |\n| `abiFilters` | `arm64-v8a` |\n| `versionCode` / `versionName` | 21 / `0.4.7` |\n| Dependencias | `commons-compress:1.21`, `xz:1.9` |\n| Firma (release) | config `debug` (⚠️ pendiente keystore propio) |\n\n---\n\n## 10. Generación del rootfs\n\n### Rootfs base (`scripts/build-rootfs.sh`)\n\nExporta la imagen oficial `arm64v8/debian:bookworm` con Docker:\n\n```bash\nscripts/build-rootfs.sh\n# → dist/debian-bookworm-arm64.tar(.xz) + dist/rootfs-meta.json (sha256)\n```\n\n### Rootfs con OpenClaw (`scripts/build-rootfs-openclaw.sh`)\n\nParte del rootfs base, añade **Node v24 (arm64)** y **OpenClaw** (`--os=linux --cpu=arm64`, sin\nemulación) y genera el asset empaquetado:\n\n```bash\nscripts/build-rootfs-openclaw.sh            # última versión\nscripts/build-rootfs-openclaw.sh 2026.9.4   # versión concreta\n# → app/app/src/main/assets/rootfs/debian-bookworm-arm64.tar.xz\n```\n\nRecorta *source maps*, `test/` y docs no esenciales — **conservando** `docs/reference/templates`\n(sin ellas el agente falla con *\"Missing workspace template\"*).\n\n> Tras regenerar el rootfs: **sube `ROOTFS_SCHEMA`** en `RootfsInstaller.kt`.\n\n---\n\n## 11. Versionado y releases\n\n- Se incrementa **`versionCode`** (+1) y **`versionName`** (semántico) en `app/app/build.gradle.kts`.\n- Como el `applicationId` no cambia (`io.debi.tc`), cada build **se instala encima** de la anterior\n  **sin desinstalar** (misma firma).\n- El APK final se renombra a `Linux-TC-<versionName>-<buildType>.apk`.\n- Si supera el límite de Telegram (50 MB), se envía por **gofile.io**.\n\n---\n\n## 12. Solución de problemas\n\n| Síntoma | Causa / solución |\n|---|---|\n| `Temporary failure resolving …` (apt/red) | Falta permiso `INTERNET` o el `resolv.conf`. |\n| El gateway se apaga al salir | Activa **Permitir 2º plano** (Ajustes → OpenClaw). |\n| Faltan binarios tras actualizar | Sube **`ROOTFS_SCHEMA`** y reinstala. |\n| `Missing workspace template: AGENTS.md` | Las plantillas se copian en cada arranque; usa **Reparar (doctor)**. |\n| `WorkspaceVanishedError` | `oc-prepare` reconstruye el workspace; ejecuta **Reparar (doctor)**. |\n| `htop`/`top` sin datos de CPU | Android bloquea `/proc/stat`; se activa el **puente /proc**. |\n| La app se cierra en 2º plano (Xiaomi/Samsung/Huawei) | Concede la exención de batería y protege la app. |\n| APK no instala (arquitectura) | El dispositivo no es **arm64-v8a** → no soportado. |\n\n---\n\n## 13. Distribución\n\nGoogle Play **restringe apps que descargan y ejecutan código** (Device & Network Abuse) → Termux\nfue retirada. Rutas recomendadas: **F-Droid**, **APK directo / GitHub Releases**, **Amazon\nAppstore**; Play Store con riesgo de rechazo/retirada.\n\n> ⚠️ Licencia: no forkear Termux/UserLAnd tal cual (GPLv3). Linux-TC usa su **propio** PTY nativo\n> (`ptyexec.c`, Apache-2.0) y el binario proot del upstream.\n\n---\n\n*Documento generado para el proyecto Linux-TC — Debian Linux en Android (proot) + OpenClaw. Creador: Andres MAG.*\n"}, "pro": {"title": "Linux-TPro", "md": "# Linux-TPro — Documentación técnica\n\n**Debian Linux completo dentro de Android, sin root.**\n\n- **Creador:** Andres MAG\n- **Paquete:** `io.debipro` · **namespace:** `io.debi`\n- **Versión actual:** `1.0.3` (versionCode `4`)\n- **Plataforma:** Android 9+ (API 28) · **arm64-v8a** (aarch64) · mínimo ~4 GB de RAM\n\n---\n\n## Índice\n\n1. [Qué es](#1-qué-es)\n2. [Características](#2-características)\n3. [Requisitos](#3-requisitos)\n4. [Arquitectura](#4-arquitectura)\n5. [Estructura del proyecto](#5-estructura-del-proyecto)\n6. [Cómo funciona internamente](#6-cómo-funciona-internamente)\n7. [Interfaz de usuario](#7-interfaz-de-usuario)\n8. [OpenClaw integrado](#8-openclaw-integrado)\n9. [Compilación](#9-compilación)\n10. [Generación del rootfs](#10-generación-del-rootfs)\n11. [Versionado y releases](#11-versionado-y-releases)\n12. [Solución de problemas](#12-solución-de-problemas)\n13. [Distribución](#13-distribución)\n14. [Changelog](#14-changelog)\n\n---\n\n## 1. Qué es\n\n**Linux-TPro** es una app Android que ejecuta un **sistema Debian completo** (filesystem +\nterminal interactivo) empaquetado dentro del propio APK. No necesita root, ni conexión a\ninternet para funcionar (todo viene incluido), ni pasos manuales de instalación.\n\nEl objetivo es **distribuir al público** un Linux real en el móvil de forma sencilla:\nabres la app y tienes una shell Debian lista, con herramientas preinstaladas y **OpenClaw +\nNode.js** ya dentro.\n\n### Por qué proot y no chroot\n\nAndroid **sin root bloquea `chroot` y los namespaces** (SELinux + restricciones del kernel).\nLa solución estándar del sector (Termux → `proot-distro`) es **PRoot**:\n\n- PRoot intercepta las syscalls (`ptrace` + `seccomp`) y **emula un rootfs**.\n- Los binarios se ejecutan **nativos ARM64** (no hay emulación tipo QEMU) → velocidad real.\n- No requiere root.\n\n---\n\n## 2. Características\n\n- 🐧 **Debian bookworm arm64** completo empaquetado en el APK (una sola extracción la primera vez).\n- 🖥️ **Terminal interactivo** con xterm.js + PTY nativo (no es un \"wrapper\" de comandos).\n- 🗂️ **Pestañas (secciones)** independientes: cada una es una sesión bash viva. Se pueden\n  **anclar** como favoritas (no se cierran por error).\n- 🎨 **6 temas** de terminal: Clásico, Dracula, Solarized, Gruvbox, Nord y Papel.\n- 🧩 **Perfiles de paquetes**: Básico y Dev (se **verifican/actualizan** desde Ajustes).\n- 📊 **Monitor** de memoria, almacenamiento, carga y núcleos.\n- 🦞 **OpenClaw integrado** (agente IA) con Node.js v24 preinstalado y arranque del gateway\n  en segundo plano con watchdog (se relanza solo si se cae).\n- 📱 **Segundo plano real**: servicio en primer plano + wake/wifi lock (las sesiones y el\n  gateway siguen vivos al salir de la app).\n- 📋 **Copiar logs del terminal** al portapapeles con un botón.\n- 🔌 Acceso a **/sdcard** y **/root/storage** desde el terminal (almacenamiento compartido).\n\n---\n\n## 3. Requisitos\n\n### Del dispositivo\n\n| Requisito | Valor |\n|---|---|\n| Android | 9 (API 28) o superior |\n| Arquitectura | **arm64-v8a (aarch64)** obligatorio |\n| RAM | 4 GB recomendado mínimo |\n| Almacenamiento | ~1 – 1.5 GB libres (extracción del rootfs) |\n\n> Los equipos **arm32-only** quedan fuera: Debian moderno no tiene usuario arm32 viable.\n\n### Del host de compilación\n\n- JDK 17\n- Android SDK (build-tools, platform 35, NDK `26.3.11579264`, CMake 3.22.1)\n- Gradle 8.13 (wrapper en `~/.gradle/wrapper/dists`), AGP 8.12.0, Kotlin 2.1.21\n- `local.properties` con `sdk.dir=<ruta Android SDK>`\n\nPara **regenerar el rootfs** además: `bash`, `curl`, `tar`, `xz`, `docker` y `npm` moderno.\n\n---\n\n## 4. Arquitectura\n\n```\n┌──────────────────────────────────────────────────────────────┐\n│                       Android (app io.debipro)                │\n│                                                              │\n│  MainActivity (Activity)                                     │\n│   └── WebView  ── file:///android_asset/web/index.html       │\n│         · xterm.js (render terminal)                         │\n│         · puente JS ↔ Kotlin:  window.Android.*              │\n│                                                              │\n│  Bridge (JavascriptInterface)                                │\n│   · ready / newTab / selectTab / closeTab                    │\n│   · send / resize / runLine / copyToClipboard                │\n│   · ocStatus / ocInstall / ocSetKey / ocSetTgToken /         │\n│     ocGateway / ocDoctor / ocBatteryStatus / sysStats        │\n│                                                              │\n│  Term (singleton)  ── gestor de sesiones                     │\n│   · hasta 10 sesiones, buffer circular 512 KB                │\n│   · procshim: bind de /proc/stat,/uptime,/loadavg            │\n│   · watchdog del gateway OpenClaw                            │\n│                                                              │\n│  RootfsInstaller  ── extrae proot + rootfs la 1ª vez         │\n│  TermProcessService ── foreground service + wake/wifi lock   │\n│  Pty (JNI libptyexec.so) ── PTY nativo fork/exec             │\n└───────────────────────────┬──────────────────────────────────┘\n                            │ proot (ptrace/seccomp)\n                            ▼\n┌──────────────────────────────────────────────────────────────┐\n│  filesDir/rootfs  =  Debian bookworm arm64                   │\n│  (/bin/bash, apt, python3, node, openclaw, …)                │\n│  binds: /dev /proc /sys  ·  /sdcard  ·  /root/storage        │\n└──────────────────────────────────────────────────────────────┘\n```\n\n### Por qué targetSdk = 28\n\nAndroid 10+ **bloquea el `exec` de binarios** alojados en el directorio privado de la app\ncuando `targetSdk >= 29`. PRoot necesita ejecutar binarios desde\n`/data/data/io.debipro/files/…`. Por eso `targetSdk = 28` (mismo truco que Termux).\nSe mantiene `compileSdk = 35` para compilar contra SDKs modernos.\n\n---\n\n## 5. Estructura del proyecto\n\n```\nLinux-TPro/\n├── README.md                 # resumen del proyecto\n├── DOCUMENTACION.md          # este documento\n├── scripts/\n│   ├── build-rootfs.sh           # rootfs Debian base (desde imagen Docker oficial)\n│   ├── build-rootfs-openclaw.sh  # rootfs base + Node v24 + OpenClaw\n│   ├── make-icon.py              # genera iconos (squircle rojo OpenClaw)\n│   └── patch-paths.py            # reescribe rutas en binarios proot (Termux→io.debipro)\n├── dist/                     # artefactos del rootfs (.tar, .tar.xz, meta)\n└── app/                      # proyecto Android (Gradle/Kotlin)\n    ├── build.gradle.kts          # AGP + Kotlin\n    ├── settings.gradle.kts       # módulo :app\n    ├── gradle.properties         # JVM, paralelismo, AndroidX\n    ├── local.properties          # sdk.dir\n    └── app/\n        ├── build.gradle.kts      # config Android + versionCode/versionName\n        └── src/main/\n            ├── AndroidManifest.xml\n            ├── cpp/              # ptyexec.c + CMakeLists.txt (PTY nativo)\n            ├── jniLibs/arm64-v8a/ # libtalloc.so, libandroid-shmem.so\n            ├── java/io/debi/\n            │   ├── MainActivity.kt        # WebView + puente Android\n            │   ├── Term.kt                # gestor de sesiones proot\n            │   ├── RootfsInstaller.kt     # extracción/instalación del runtime\n            │   ├── TermProcessService.kt  # servicio en primer plano\n            │   └── Pty.kt                 # puente JNI\n            ├── res/              # iconos mipmap, drawables\n            └── assets/\n                ├── web/          # index.html, xterm.js, addon-fit.js, xterm.css\n                ├── proot/        # bin/proot, libexec/proot/loader(32), lib/*.so\n                ├── rootfs/       # debian-bookworm-arm64.tar.xz\n                ├── oc-templates/ # plantillas del workspace de OpenClaw\n                ├── oc-config/    # openclaw.json por defecto\n                └── oc-bin/       # oc-prepare.sh\n```\n\n---\n\n## 6. Cómo funciona internamente\n\n### 6.1 Instalación del runtime (una sola vez)\n\n`RootfsInstaller.install()` se ejecuta en el primer arranque:\n\n1. **Siempre** copia/refresca `assets/proot/` → `filesDir/usr/` (proot + loaders + libs)\n   y les da permisos de ejecución. Así las actualizaciones de la app sustituyen binarios\n   viejos de proot sin re-extraer todo el rootfs.\n2. Genera `filesDir/etc/resolv.conf` con los **DNS reales del sistema Android** (fallback\n   `1.1.1.1` / `8.8.8.8`).\n3. **Si el esquema cambió** (`ROOTFS_SCHEMA`), borra el rootfs anterior y extrae\n   `assets/rootfs/debian-bookworm-arm64.tar.xz` (con `commons-compress` + `xz`).\n   La extracción resuelve **symlinks y hardlinks** (con fallback a copia, porque algunos\n   hardlinks fallan y rompían binarios como `/usr/bin/perl`).\n4. Escribe el marcador `filesDir/.installed` con el número de esquema.\n5. Copia las **plantillas del workspace** de OpenClaw y la **config por defecto**, y\n   refresca el script `oc-prepare`.\n\n> **Importante:** al cambiar el rootfs o el extractor hay que **subir `ROOTFS_SCHEMA`** en\n> `RootfsInstaller.kt` para forzar la re-extracción en dispositivos que ya lo tenían.\n\n### 6.2 Sesiones (Term.kt)\n\n- Cada **pestaña = una sesión** con su propio proceso `bash` dentro de proot.\n- Máximo **10 sesiones simultáneas** (`MAX_SESSIONS`).\n- La sesión **activa** entrega su salida en directo a la UI. Las **inactivas** acumulan en\n  un **buffer circular de 512 KB** que se vuelca al volver a esa pestaña.\n- Cambiar de pestaña **nunca** cierra las demás (solo cambia a quién se entrega la salida).\n- El singleton vive fuera de la Activity → las sesiones **sobreviven** a que la app pase a\n  segundo plano.\n\n### 6.3 Puente /proc (htop/top)\n\nAndroid niega `/proc/stat`, `/proc/uptime` y `/proc/loadavg` a las apps, así que `htop`/`top`\nno podrían leerlos dentro del guest. Si la propia app **sí** puede leerlos, se sirve una copia\nrefrescada cada segundo y se **bindean** como `/proc/stat` etc. dentro de proot.\n\n### 6.4 PTY nativo (ptyexec.c)\n\n- `Pty.create()` abre `/dev/ptmx`, hace `fork()`, y en el hijo: `setsid`, `TIOCSCTTY`,\n  `dup2` de stdin/stdout/stderr al pts y `TIOCSWINSZ` (tamaño de terminal).\n- Expone `read`/`write`/`resize`/`close`/`waitpid`/`kill` a Kotlin.\n- Resultado: un **terminal real** (no un pipe), con colores, control de job, `Ctrl+C`, etc.\n\n### 6.5 Argumentos de proot (`prootArgv`)\n\n```\nproot --kill-on-exit --link2symlink -0 -r <filesDir/rootfs>\n      -b /dev -b /proc [-b <shim /proc…>] -b /sys\n      -b <filesDir/etc/resolv.conf>:/etc/resolv.conf\n      -b <sdcard>:/sdcard -b <sdcard>:/root/storage\n      -w /root  /usr/bin/env -i HOME=/root PATH=… TERM=xterm-256color LANG=C.UTF-8\n      /bin/bash -l\n```\n\n### 6.6 Servicio en primer plano\n\n`TermProcessService` mantiene vivo el proceso Debian en segundo plano\n\n- **Notificación persistente** \"Debian en ejecución\" con botón **Detener** (mata todas las\n  sesiones y para el servicio).\n- **Wake lock** (CPU despierta) + **wifi lock** (red activa) → el gateway de OpenClaw puede\n  responder aunque la pantalla esté apagada.\n- Los locks se cogen **solo cuando hay sesiones activas** (ahorro de batería).\n- `onTaskRemoved`: no se para al quitar la app de recientes; refuerza el foreground.\n\n---\n\n## 7. Interfaz de usuario\n\nLa UI es una **WebView** que carga `assets/web/index.html` (xterm.js + `addon-fit`).\n\n### Barra superior\n\n- **Selector de secciones** + botones: ☆ (anclar favorita), ＋ (nueva), ✕ (cerrar).\n- Herramientas: **🦞 OpenClaw**, **📊 Monitor**, **⚙ Ajustes**.\n\n### Barra de teclas extra\n\n`Esc` · `Tab` · `Ctrl` · flechas ↑↓←→ · `|` · `/` · `-` · `⌫ línea` (borra la línea actual).\n\n### Ajustes (⚙)\n\n- **Tema del terminal:** 6 temas (Clásico, Dracula, Solarized, Gruvbox, Nord, Papel).\n- **Perfiles de instalación:** **Básico** y **Dev**. En Linux-TPro estos paquetes ya vienen\n  instalados, así que los botones dicen **«Actualizar Básico»** / **«Actualizar Dev»** y solo\n  verifican/actualizan los paquetes en la pestaña actual.\n  - *Básico:* git, curl, wget, nano, less, python3, python3-pip, python3-venv, unzip, zip, tree, ca-certificates.\n  - *Dev:* git, curl, wget, vim, tmux, python3, python3-pip, python3-venv, build-essential, cmake, pkg-config, gdb, nodejs, npm, sqlite3.\n- **Terminal:** botón **📋 Copiar logs del terminal** → vuelca todo el contenido del terminal\n  (incluido el scrollback) al portapapeles del sistema.\n- **Acerca de:** `Linux-TPro` — Debian Linux en Android (proot) · **Creador: Andres MAG**.\n\n### Monitor (📊)\n\nMemoria usada/total, almacenamiento, carga (1/5/15) y núcleos. (Android bloquea `/proc/stat`\na las apps, así que no hay % de CPU ni uptime.)\n\n### Puente JS ↔ Android\n\nSe expone como `window.Android`:\n\n| Método | Función |\n|---|---|\n| `ready()` | La UI está lista → abre/activa la sección |\n| `newTab()` / `selectTab(id)` / `closeTab(id)` | Gestión de pestañas |\n| `send(b64)` / `resize(c,r)` / `runLine(line)` | E/S del terminal |\n| `copyToClipboard(text)` | Copia texto al portapapeles del sistema |\n| `sysStats()` | JSON con memoria/disco/carga/núcleos |\n| `ocStatus()` / `ocInstall()` / `ocDoctor()` | Estado/runtime de OpenClaw |\n| `ocSetKey(key,start)` / `ocSetTgToken(tok,start)` | API key / token de bot |\n| `ocGateway(on)` | Arranca/para el gateway |\n| `ocBatteryStatus()` / `ocRequestBattery()` | Estado/petición del 2º plano |\n\n---\n\n## 8. OpenClaw integrado\n\nEl rootfs incluye **Node.js v24 (arm64)** y **OpenClaw** ya instalados:\n\n- Node en `/opt/node` (symlinks en `/usr/local/bin`: `node`, `npm`, `npx`, `corepack`).\n- OpenClaw global: `/usr/local/bin/openclaw` → `/usr/local/lib/node_modules/openclaw/openclaw.mjs`.\n- Config por defecto (`assets/oc-config/openclaw.json`): gateway local en el puerto **18789**,\n  proveedor **DeepSeek** (el usuario solo mete su API key desde Ajustes → OpenClaw).\n\n### Panel OpenClaw en la app\n\n- **Dependencias:** muestra versiones de Node.js, npm y OpenClaw (✅/❌).\n- **API key del proveedor (DeepSeek):** se guarda y arranca el gateway.\n- **Bot de Telegram (opcional):** guarda el token y reinicia el gateway.\n- **Segundo plano:** petición de exención de optimización de batería (sin esto Android suele\n  matar el gateway al salir de la app).\n- **Gateway:** interruptor para arrancar/parar. Se ejecuta en **su propia pestaña** (anclada\n  automáticamente) y sigue vivo en segundo plano.\n- **Reparar (doctor):** ejecuta `oc-prepare` + `openclaw doctor --fix`.\n\n### `oc-prepare`\n\nScript en `/usr/local/bin/oc-prepare` (assets/oc-bin). Garantiza el workspace real de la\nconfig y, solo si hace falta, ejecuta `openclaw doctor --fix`. Evita errores como\n`Missing workspace template` o `WorkspaceVanishedError`.\n\n### Watchdog del gateway\n\nSi el gateway estaba activado y su proceso muere, `Term.pump()` lo **relanza solo** tras 5 s\n(mientras el usuario lo tenga activo).\n\n---\n\n## 9. Compilación\n\n### Requisitos en el host\n\n- Android SDK en `~/Android/Sdk` (ajusta `app/local.properties`).\n- JDK 17.\n- NDK `26.3.11579264`, CMake `3.22.1` (se bajan vía SDK Manager si faltan).\n\n### Comando de build (debug)\n\n```bash\ncd app\nexport ANDROID_HOME=~/Android/Sdk\nGRADLE=$(ls -d ~/.gradle/wrapper/dists/gradle-8.13-bin/*/gradle-8.13/bin/gradle)\n$GRADLE :app:assembleDebug --console=plain\n```\n\nSalida (se renombra automáticamente):\n\n```\napp/app/build/outputs/apk/debug/Linux-TPro-<versionName>-debug.apk\n```\n\n### Configuración clave (`app/app/build.gradle.kts`)\n\n| Campo | Valor |\n|---|---|\n| `applicationId` | `io.debipro` |\n| `namespace` | `io.debi` |\n| `minSdk` / `targetSdk` / `compileSdk` | 28 / 28 / 35 |\n| `abiFilters` | `arm64-v8a` |\n| `versionCode` / `versionName` | 4 / `1.0.3` |\n| Dependencias | `commons-compress:1.21`, `xz:1.9` |\n| Firma (release) | config `debug` (⚠️ pendiente keystore propio) |\n\n> El APK **release** está firmado con la clave *debug* a propósito (para pruebas).\n> Para publicar hay que crear un **keystore propio** y configurar `signingConfigs.release`.\n\n---\n\n## 10. Generación del rootfs\n\n### Rootfs base (`scripts/build-rootfs.sh`)\n\nExporta la imagen oficial `arm64v8/debian:bookworm` con Docker (evita `debootstrap`+`qemu`):\n\n```bash\nscripts/build-rootfs.sh\n# → dist/debian-bookworm-arm64.tar(.xz) + dist/rootfs-meta.json (sha256)\n```\n\n### Rootfs con OpenClaw (`scripts/build-rootfs-openclaw.sh`)\n\nParte del rootfs base, añade **Node v24 (arm64)** y **OpenClaw** (`--os=linux --cpu=arm64`,\nsin emulación) y genera el asset que se empaqueta:\n\n```bash\nscripts/build-rootfs-openclaw.sh            # última versión\nscripts/build-rootfs-openclaw.sh 2026.9.4   # versión concreta\n# → app/app/src/main/assets/rootfs/debian-bookworm-arm64.tar.xz\n```\n\nRecorta *source maps*, `test/` y docs no esenciales — **conservando** `docs/reference/templates`\n(sin ellas el agente falla con *\"Missing workspace template\"*).\n\n> Tras regenerar el rootfs: **sube `ROOTFS_SCHEMA`** en `RootfsInstaller.kt`.\n\n### Iconos (`scripts/make-icon.py`)\n\nGenera los mipmaps (legacy, foreground adaptativo y roundIcon) en rojo OpenClaw\n(degradado `#DE3C3C → #C83232 → #B92A2A`).\n\n### `patch-paths.py`\n\nReescribe strings de rutas en binarios de Termux para adaptarlos a `io.debipro`\n(`/data/data/com.termux/files/usr` → `/data/data/io.debipro/files/usr`), sin desplazar\nsecciones ELF.\n\n---\n\n## 11. Versionado y releases\n\n- Se incrementa **`versionCode`** (entero, siempre +1) y **`versionName`** (semántico) en\n  `app/app/build.gradle.kts`.\n- Como el `applicationId` no cambia (`io.debipro`), cada build **se instala encima** de la\n  anterior **sin desinstalar** (misma firma).\n- El APK final se renombra a `Linux-TPro-<versionName>-<buildType>.apk` automáticamente.\n\n### Reparto de builds\n\nLos APK pesan ~260–280 MB → **exceden el límite de Telegram (50 MB)**. Para enviarlos se usa\n**gofile.io** (ver `~/.openclaw/workspace/gofile.sh`), que devuelve un enlace de descarga.\n\n---\n\n## 12. Solución de problemas\n\n| Síntoma | Causa / solución |\n|---|---|\n| `Temporary failure resolving …` (apt/red) | Falta permiso `INTERNET` o el `resolv.conf`. Comprueba DNS en Ajustes/terminal. |\n| El gateway se apaga al salir | Activa **Permitir 2º plano** (Ajustes → OpenClaw). |\n| Faltan binarios tras actualizar (p.ej. `perl`) | Sube **`ROOTFS_SCHEMA`** y reinstala para forzar re-extracción limpia. |\n| `Missing workspace template: AGENTS.md` | Las plantillas se copian desde assets en cada arranque; si persiste, usa **Reparar (doctor)**. |\n| `WorkspaceVanishedError` | `oc-prepare` reconstruye el workspace; ejecuta **Reparar (doctor)**. |\n| `htop`/`top` sin datos de CPU | Android bloquea `/proc/stat`; se activa el **puente /proc** si la app puede leerlo. |\n| La app se cierra en 2º plano (Xiaomi/Samsung/Huawei) | Concede la exención de batería y protege la app en recientes. |\n| APK no instala (arquitectura) | El dispositivo no es **arm64-v8a** → no soportado. |\n\n---\n\n## 13. Distribución\n\nGoogle Play **restringe apps que descargan y ejecutan código** (Device & Network Abuse) →\nTermux fue retirada. Rutas recomendadas:\n\n- **F-Droid** (ideal si el proyecto es open source).\n- **APK directo / GitHub Releases**.\n- **Amazon Appstore**.\n- Play Store: posible, pero con riesgo de rechazo/retirada.\n\n> ⚠️ Licencia: no se recomienda forkear Termux/UserLAnd tal cual (GPLv3 obliga a liberar todo\n> el código). Linux-TPro usa su **propio** PTY nativo (`ptyexec.c`, Apache-2.0) y el binario\n> proot del upstream.\n\n---\n\n## 14. Changelog\n\n### 1.0.3 — versionCode 4\n- Los botones de perfiles pasan de «Instalar …» a **«Actualizar Básico»** / **«Actualizar Dev»**\n  (todas las dependencias ya vienen instaladas).\n\n### 1.0.2 — versionCode 3\n- **Botón 📋 Copiar logs del terminal** en Ajustes (portapapeles del sistema).\n- Sección **Acerca de** con el creador: **Andres MAG**.\n- Nueva numeración de versión.\n\n### 1.0.1 — versionCode 2\n- Primera versión con **OpenClaw + Node.js** preinstalados en el rootfs.\n- UI de terminal (xterm.js + PTY), pestañas, temas, perfiles, monitor y panel OpenClaw.\n\n---\n\n*Documento generado para el proyecto Linux-TPro — Debian Linux en Android (proot).*\n"}};
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function mdInline(s){
+  s = escHtml(s);
+  s = s.replace(/`([^`]+)`/g,'<code>$1</code>');
+  s = s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*]+)\*/g,'$1<em>$2</em>');
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s = s.replace(/~~([^~]+)~~/g,'<del>$1</del>');
+  return s;
+}
+function mdToHtml(md){
+  const lines = md.replace(/\r\n/g,'\n').split('\n');
+  let h='', inCode=false, codeBuf=[], listType=null;
+  const closeList=()=>{ if(listType){ h += (listType==='ul'?'</ul>':'</ol>'); listType=null; } };
+  const parseRow=r=>r.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(c=>c.trim());
+  for(let i=0;i<lines.length;i++){
+    let ln=lines[i];
+    if(/^\s*```/.test(ln)){
+      if(!inCode){ inCode=true; codeBuf=[]; }
+      else { inCode=false; h += '<pre><code>'+escHtml(codeBuf.join('\n'))+'</code></pre>'; }
+      continue;
+    }
+    if(inCode){ codeBuf.push(ln); continue; }
+    if(/^\s*$/.test(ln)){ closeList(); continue; }
+    let mh = ln.match(/^(#{1,6})\s+(.*)$/);
+    if(mh){ closeList(); const l=mh[1].length; h += '<h'+l+'>'+mdInline(mh[2])+'</h'+l+'>'; continue; }
+    if(/^\s*---+\s*$/.test(ln)){ closeList(); h += '<hr>'; continue; }
+    if(/^\s*\|.*\|\s*$/.test(ln) && i+1<lines.length && /^\s*\|[\s:\-|]+\|\s*$/.test(lines[i+1])){
+      closeList();
+      const head=parseRow(ln); i+=2;
+      let t='<table><thead><tr>'+head.map(c=>'<th>'+mdInline(c)+'</th>').join('')+'</tr></thead><tbody>';
+      while(i<lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){
+        t += '<tr>'+parseRow(lines[i]).map(c=>'<td>'+mdInline(c)+'</td>').join('')+'</tr>'; i++;
+      }
+      h += t+'</tbody></table>'; i--; continue;
+    }
+    let lm = ln.match(/^\s*([-*+])\s+(.*)$/);
+    let om = ln.match(/^\s*(\d+)[.)]\s+(.*)$/);
+    if(lm){ if(listType!=='ul'){ closeList(); h+='<ul>'; listType='ul'; } h += '<li>'+mdInline(lm[2])+'</li>'; continue; }
+    if(om){ if(listType!=='ol'){ closeList(); h+='<ol>'; listType='ol'; } h += '<li>'+mdInline(om[2])+'</li>'; continue; }
+    if(/^\s*>\s?/.test(ln)){ closeList(); h += '<blockquote>'+mdInline(ln.replace(/^\s*>\s?/,''))+'</blockquote>'; continue; }
+    closeList(); h += '<p>'+mdInline(ln)+'</p>';
+  }
+  if(inCode && codeBuf.length) h += '<pre><code>'+escHtml(codeBuf.join('\n'))+'</code></pre>';
+  closeList();
+  return h;
+}
+function openDoc(k){
+  const d = DOCS[k]; if(!d) return;
+  document.getElementById('docTitle').innerHTML = '📖 ' + d.title;
+  document.getElementById('docBody').innerHTML = mdToHtml(d.md);
+  const m = document.getElementById('docModal');
+  m.classList.add('open'); m.querySelector('.docview').scrollTop = 0;
+}
+function closeDoc(){ document.getElementById('docModal').classList.remove('open'); }
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDoc(); });
+document.getElementById('docModal').addEventListener('click', e => {
+  if(e.target.id === 'docModal') closeDoc();
+});
+</script>
+
+</body>
+</html>
