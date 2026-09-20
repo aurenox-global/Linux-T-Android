@@ -1,0 +1,114 @@
+{
+  "schema": "tnube.providers.v1",
+  "updatedAt": "2026-09-17",
+  "note": "Catálogo curado: SOLO proveedores que funcionan bien con OpenClaw (API OpenAI-compatible + tool calling + streaming). Se descartaron los que daban problemas de tools/cuota (Hugging Face, Together, NVIDIA NIM, Cohere, Chutes).",
+  "routerPort": 8790,
+  "dailyLimits": {
+    "groq": 1000,
+    "cerebras": 14400,
+    "gemini": 1500,
+    "openrouter": 50,
+    "mistral": 1000,
+    "github": 150,
+    "pollinations": 500,
+    "sambanova": 1000
+  },
+  "roles": {
+    "fast":   ["groq", "cerebras", "gemini", "zai", "qwen", "openrouter", "mistral", "github"],
+    "code":   ["cerebras", "mistral", "openrouter", "deepseek", "qwen", "sambanova", "groq", "zai", "github"],
+    "long":   ["gemini", "openrouter", "deepseek", "zai", "qwen"],
+    "vision": ["gemini", "openrouter", "mistral", "qwen"]
+  },
+  "priority": ["groq", "cerebras", "gemini", "openrouter", "mistral", "zai", "qwen", "github", "sambanova", "pollinations", "deepseek"],
+  "providers": [
+    {
+      "id": "groq", "name": "Groq", "tools": true,
+      "free": "Gratis ~1.000 req/día · muy rápido", "signup": "https://console.groq.com/keys", "keyHint": "gsk_…",
+      "baseUrl": "https://api.groq.com/openai/v1", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "llama-3.1-8b-instant", "default": "llama-3.3-70b-versatile",
+                  "code": "qwen-2.5-coder-32b", "long": "llama-3.3-70b-versatile" }
+    },
+    {
+      "id": "cerebras", "name": "Cerebras", "tools": true,
+      "free": "Gratis ~14.400 req/día · el más rápido", "signup": "https://cloud.cerebras.ai", "keyHint": "csk-…",
+      "baseUrl": "https://api.cerebras.ai/v1", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "llama3.1-8b", "default": "llama-3.3-70b",
+                  "code": "qwen-2.5-coder-32b", "long": "llama-3.3-70b" }
+    },
+    {
+      "id": "gemini", "name": "Google Gemini", "tools": true, "vision": true,
+      "free": "Gratis (RPM/RPD) · excelente con herramientas", "signup": "https://aistudio.google.com/apikey", "keyHint": "AIza…",
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai/", "api": "openai-completions",
+      "contextWindow": 1000000, "maxTokens": 8192,
+      "models": { "fast": "gemini-2.5-flash", "default": "gemini-2.5-flash",
+                  "code": "gemini-2.5-pro", "long": "gemini-2.5-pro", "vision": "gemini-2.5-flash" }
+    },
+    {
+      "id": "openrouter", "name": "OpenRouter", "tools": true, "vision": true,
+      "free": "1 key → cientos de modelos · modelos «:free» (si uno se retira, el router salta al siguiente)", "signup": "https://openrouter.ai/keys", "keyHint": "sk-or-…",
+      "baseUrl": "https://openrouter.ai/api/v1", "api": "openai-completions",
+      "contextWindow": 262144, "maxTokens": 8192,
+      "models": { "fast": "google/gemma-4-26b-a4b-it:free", "default": "nvidia/nemotron-3-super-120b-a12b:free",
+                  "code": "poolside/laguna-s-2.1:free", "long": "nvidia/nemotron-3-ultra-550b-a55b:free",
+                  "vision": "google/gemma-4-31b-it:free" }
+    },
+    {
+      "id": "mistral", "name": "Mistral", "tools": true, "vision": true,
+      "free": "Plan «experiment» gratis", "signup": "https://console.mistral.ai/api-keys", "keyHint": "…",
+      "baseUrl": "https://api.mistral.ai/v1", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "mistral-small-latest", "default": "mistral-small-latest",
+                  "code": "codestral-latest", "long": "mistral-small-latest", "vision": "pixtral-large-latest" }
+    },
+    {
+      "id": "zai", "name": "Z.ai (GLM)", "tools": true,
+      "free": "GLM-4.5-Flash gratis · bueno con tools", "signup": "https://z.ai/manage-apikey/apikey-list", "keyHint": "…",
+      "baseUrl": "https://api.z.ai/api/paas/v4", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "glm-4.5-flash", "default": "glm-4.5-flash",
+                  "code": "glm-4.6", "long": "glm-4.6" }
+    },
+    {
+      "id": "qwen", "name": "Qwen (DashScope)", "tools": true, "vision": true,
+      "free": "Cuota gratis de bienvenida (1M tokens)", "signup": "https://bailian.console.alibabacloud.com", "keyHint": "sk-…",
+      "baseUrl": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "qwen-turbo", "default": "qwen-plus",
+                  "code": "qwen3-coder-plus", "long": "qwen-plus", "vision": "qwen-vl-plus" }
+    },
+    {
+      "id": "github", "name": "GitHub Models", "tools": true, "vision": true,
+      "free": "Gratis con tu cuenta GitHub (cuota diaria)", "signup": "https://github.com/settings/tokens", "keyHint": "github_pat_…",
+      "baseUrl": "https://models.github.ai/inference", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "openai/gpt-4o-mini", "default": "openai/gpt-4o-mini",
+                  "code": "openai/gpt-4o", "long": "meta/Llama-3.3-70B-Instruct", "vision": "openai/gpt-4o-mini" }
+    },
+    {
+      "id": "sambanova", "name": "SambaNova", "tools": true,
+      "free": "Gratis con límites por minuto/día", "signup": "https://cloud.sambanova.ai/apis", "keyHint": "…",
+      "baseUrl": "https://api.sambanova.ai/v1", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "Meta-Llama-3.1-8B-Instruct", "default": "Meta-Llama-3.3-70B-Instruct",
+                  "code": "Qwen2.5-Coder-32B-Instruct", "long": "Meta-Llama-3.3-70B-Instruct" }
+    },
+    {
+      "id": "pollinations", "name": "Pollinations", "noKey": true, "recommended": true, "tools": true,
+      "free": "SIN API KEY · listo al instante (básico)", "signup": "https://pollinations.ai", "keyHint": "(no necesita key)",
+      "baseUrl": "https://text.pollinations.ai/openai", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "openai-fast", "default": "openai-fast",
+                  "code": "openai-fast", "long": "openai-fast" }
+    },
+    {
+      "id": "deepseek", "name": "DeepSeek", "tools": true, "paid": true,
+      "free": "De pago pero muy barato", "signup": "https://platform.deepseek.com/api_keys", "keyHint": "sk-…",
+      "baseUrl": "https://api.deepseek.com", "api": "openai-completions",
+      "contextWindow": 131072, "maxTokens": 8192,
+      "models": { "fast": "deepseek-chat", "default": "deepseek-chat",
+                  "code": "deepseek-chat", "long": "deepseek-reasoner" }
+    }
+  ]
+}

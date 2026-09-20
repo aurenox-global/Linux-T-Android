@@ -1,0 +1,13 @@
+# builds / artefactos
+**/build/
+**/.gradle/
+**/.cxx/
+**/.kotlin/
+**/dist/
+**/work/
+*.apk
+*.log
+local.properties
+# rootfs empaquetado (se regenera con scripts/build-rootfs*.sh)
+**/assets/rootfs/*.tar
+**/assets/rootfs/*.tar.xz

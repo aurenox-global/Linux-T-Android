@@ -1,6 +1,4 @@
-# Linux-T-Android
-
-# Linux-T · Linux-TC · Linux-TPro
+# Linux-T · Linux-TC · Linux-TPro · Linux-TNube Pro
 
 **Debian Linux completo dentro de Android — sin root.**
 
@@ -22,15 +20,16 @@ Proyecto **open source** pensado para distribuir Linux en el móvil de forma sen
 
 ## 📦 Ediciones
 
-Hay tres ediciones del mismo motor, pensadas para distintos usos:
+Hay cuatro ediciones del mismo motor, pensadas para distintos usos:
 
 | Edición | Versión | Tamaño APK | Incluye | Para quién |
 |---|---|---|---|---|
 | **Linux-T** | `0.4.4` | ~19 MB | Debian + terminal | Base, ligera |
 | **Linux-TC** | `0.4.9` | ~135 MB | Linux-T + **OpenClaw** + bot de Telegram | Agente IA en el móvil |
 | **Linux-TPro** | `1.0.4` | ~267 MB | Linux-TC + perfiles de paquetes, copiar logs, visor de docs | Todo empaquetado |
+| **Linux-TNube Pro** | `1.1.0` | ~267 MB | Linux-TPro + **APIs de IA** conmutables y **router de modelos** | Agente IA multi-proveedor |
 
-Las tres comparten el mismo terminal (xterm.js + PTY nativo), el motor **PRoot** y el
+Las cuatro comparten el mismo terminal (xterm.js + PTY nativo), el motor **PRoot** y el
 sistema de **pestañas**. Se pueden instalar a la vez (cada una tiene su propio `applicationId`).
 
 ---
@@ -42,7 +41,9 @@ Los APK se distribuyen desde carpetas de **MEGA** (enlaces permanentes):
 - **Linux-T** → <https://mega.nz/folder/8f51QKxI#dOvUA8vteT5b_OHyz9hZtw>
 - **Linux-TC** → <https://mega.nz/folder/UXYCUS4A#xIhcfw3blovIvmhjB5Xv8g>
 - **Linux-TPro** → <https://mega.nz/folder/gDp1USDI#I-N4ByWtnb__IEg46nEQvQ>
+- **Linux-TNube Pro** → [GitHub Releases](https://github.com/aurenox-global/Linux-T-Android/releases) *(subida a GitHub)*
 
+También se publican las cuatro ediciones en **GitHub Releases** del repositorio.
 Página de descargas (web autocontenida): [`index.html`](index.html)
 
 > Los APK son builds **debug** (firmadas con la clave de depuración) con fines de prueba.
@@ -66,6 +67,9 @@ Página de descargas (web autocontenida): [`index.html`](index.html)
 - 🦞 **OpenClaw integrado** *(TC/Pro)*: Node.js v24 + agente IA, panel de API key (DeepSeek),
   bot de Telegram opcional y gateway en segundo plano con **watchdog** (se relanza solo).
 - 🔌 Acceso a **/sdcard** y **/root/storage** desde el terminal.
+- ☁️ **APIs de IA conmutables + router de modelos** *(TNube Pro)*: conecta varios proveedores
+  (con plan gratis), elige el principal y deja que un **router estilo OpenRouter** decida el
+  modelo y salte de proveedor si falla; incluye **medidor de uso**.
 
 ---
 
@@ -139,7 +143,8 @@ Cada edición es un proyecto Android independiente (Gradle/Kotlin) con la misma 
 │
 ├── linux-t/                  # Linux-T  (applicationId: io.debi)
 ├── linux-tc/                 # Linux-TC (applicationId: io.debi.tc)
-└── linux-tpro/               # Linux-TPro (applicationId: io.debipro)
+├── linux-tpro/               # Linux-TPro (applicationId: io.debipro)
+└── linux-tnube/              # Linux-TNube Pro (applicationId: io.tnube)
     ├── README.md
     ├── DOCUMENTACION.md      # documentación técnica del proyecto
     ├── scripts/              # build-rootfs.sh, build-rootfs-openclaw.sh, make-icon.py, patch-paths.py
@@ -187,6 +192,7 @@ dentro de la app, en Ajustes → 📖 Documentación, y desde la web de descarga
 - `linux-t/DOCUMENTACION.md`
 - `linux-tc/DOCUMENTACION.md`
 - `linux-tpro/DOCUMENTACION.md`
+- `linux-tnube/DOCUMENTACION.md`
 
 ---
 

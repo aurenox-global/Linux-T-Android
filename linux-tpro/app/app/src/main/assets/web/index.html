@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <link rel="stylesheet" href="xterm.css" />
+  <style>
+    :root {
+      --bg:#0b0f14; --fg:#cfe3f5; --chrome:#111820; --chrome2:#16202b;
+      --bord:#22303d; --bord2:#2f4356; --dim:#8fa6bd; --accent:#2b7a4b;
+    }
+    html, body { margin:0; padding:0; height:100%; background:var(--bg); overflow:hidden; }
+    body { display:flex; flex-direction:column; }
+
+    #topbar { flex:0 0 auto; display:flex; align-items:stretch; background:var(--bg);
+              overflow:hidden; max-width:100%; }
+    #tabs { flex:1 1 auto; display:flex; align-items:stretch; gap:1px;
+            background:var(--chrome); padding:4px 2px 0 4px; overflow-x:auto;
+            -webkit-user-select:none; user-select:none; }
+    #tabs .tab { display:inline-flex; align-items:center; gap:8px;
+            padding:8px 10px; font:13px/1 monospace; white-space:nowrap;
+            background:var(--chrome2); color:var(--dim); border:1px solid var(--bord);
+            border-bottom:none; border-radius:8px 8px 0 0; }
+    #tabs .tab.active { background:#1f2c3a; color:var(--fg); border-color:var(--bord2); }
+    #tabs .tab .x { color:var(--dim); font-size:15px; padding:0 2px; }
+    #tabs .tab.add { background:transparent; color:var(--dim); border-color:transparent; font-weight:bold; }
+    #tools { flex:0 0 auto; display:flex; gap:3px; align-items:center; flex-wrap:nowrap;
+             background:var(--chrome); padding:4px; }
+    #tools button { padding:5px 7px; font-size:14px; line-height:1; border-radius:7px;
+             border:1px solid var(--bord); background:var(--chrome2); color:var(--fg); }
+    #tools button svg { width:18px; height:18px; display:block; }
+
+    #term { flex:1 1 auto; min-height:0; width:100%; overflow:hidden; }
+    #keys { flex:0 0 auto; display:flex; gap:6px;
+            padding:6px 8px; background:var(--chrome); overflow-x:auto;
+            font-family:monospace; -webkit-user-select:none; user-select:none; }
+    #keys button { flex:0 0 auto; padding:8px 12px; font-size:15px; border-radius:8px;
+            border:1px solid var(--bord); background:var(--chrome2); color:var(--fg); }
+    #keys button:active { background:var(--bord2); }
+    .xterm, .xterm-viewport, .xterm-screen { height:100% !important; }
+
+    /* ---- overlays ---- */
+    .sheet { position:fixed; inset:0; background:rgba(0,0,0,.55); display:none;
+             align-items:flex-start; justify-content:center; z-index:50; padding:12px; overflow:auto; }
+    .sheet.open { display:flex; }
+    .card { width:100%; max-width:560px; background:var(--chrome); color:var(--fg);
+            border:1px solid var(--bord2); border-radius:14px; padding:16px; font-family:system-ui,sans-serif; }
+    .card h2 { margin:4px 0 12px; font-size:17px; }
+    .card h3 { margin:16px 0 8px; font-size:14px; color:var(--dim); text-transform:uppercase; letter-spacing:.5px; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn { padding:9px 14px; border-radius:10px; border:1px solid var(--bord2);
+           background:var(--chrome2); color:var(--fg); font-size:14px; }
+    .btn.primary { background:#2b7a4b; border-color:#3a9a60; color:#fff; font-weight:600; }
+    .btn.ghost { background:transparent; }
+    .profile { border:1px solid var(--bord); border-radius:12px; padding:12px; margin-bottom:10px; background:var(--chrome2); }
+    .profile h4 { margin:0 0 6px; font-size:15px; }
+    .profile .pkgs { font:12px/1.6 monospace; color:var(--dim); word-break:break-word; margin:6px 0 10px; }
+    .theme-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .theme { border:1px solid var(--bord); border-radius:10px; padding:8px; text-align:center;
+             font-size:12px; cursor:pointer; }
+    .theme.active { border-color:#3a9a60; box-shadow:0 0 0 1px #3a9a60 inset; }
+    .swatch { height:22px; border-radius:6px; margin-bottom:5px; }
+    .close { float:right; font-size:20px; line-height:1; background:transparent; border:none; color:var(--dim); }
+
+    /* ---- OpenClaw ---- */
+    #tools button.oc { display:flex; align-items:center; justify-content:center; padding:4px 6px;
+             background:linear-gradient(180deg,#DE3C3C,#B92A2A); border-color:#DE3C3C; }
+    #tools button.oc svg { width:18px; height:18px; display:block; }
+    .dep { display:flex; justify-content:space-between; gap:10px; padding:9px 0;
+           border-bottom:1px solid var(--bord); font:13px/1.2 monospace; }
+    .dep:last-child { border-bottom:none; }
+    .dep .ok { color:#7ee787; } .dep .no { color:#ff6b6b; }
+    .switch { position:relative; display:inline-block; width:52px; height:30px; flex:0 0 auto; }
+    .switch input { display:none; }
+    .switch .sl { position:absolute; inset:0; background:var(--bord); border-radius:15px; transition:.18s; }
+    .switch .sl:before { content:''; position:absolute; width:24px; height:24px; left:3px; top:3px;
+             background:#fff; border-radius:50%; transition:.18s; }
+    .switch input:checked + .sl { background:#3a9a60; }
+    .switch input:checked + .sl:before { transform:translateX(22px); }
+
+    /* ---- pestañas ancladas ---- */
+    #tabs .tab .pin { font-size:12px; opacity:.45; padding:0 1px; }
+    #tabs .tab.pinned { border-color:#c83232; }
+    #tabs .tab.pinned .pin { opacity:1; }
+    #tabs .tab .locked { color:#e0a030; font-size:13px; padding:0 2px; }
+
+    /* ---- selector de secciones ---- */
+    #tabs { align-items:center; gap:4px; padding:4px; overflow:hidden; min-width:0; }
+    #tabs select { flex:1 1 auto; min-width:0; width:100%; background:var(--chrome2); color:var(--fg);
+            border:1px solid var(--bord2); border-radius:7px; padding:6px 6px; font:12px monospace; }
+    #tabs .sec-ico { flex:0 0 auto; padding:6px 8px; font-size:14px; line-height:1; border-radius:7px;
+            border:1px solid var(--bord); background:var(--chrome2); color:var(--fg); }
+    #tabs .sec-ico.on { color:#ffd23f; border-color:#c83232; }
+
+    #mon { font:13px/1.7 monospace; }
+    #mon .bar { height:10px; background:var(--bord); border-radius:5px; overflow:hidden; margin:3px 0 9px; }
+    #mon .bar i { display:block; height:100%; background:#3a9a60; }
+    #mon .k { color:var(--dim); }
+    #mon .note { color:var(--dim); font-size:11px; margin-top:10px; line-height:1.5; }
+
+    /* ---- acerca de ---- */
+    .about { border:1px solid var(--bord); border-radius:12px; padding:12px;
+             background:var(--chrome2); font-size:13px; line-height:1.6; color:var(--dim); }
+    .about b { color:var(--fg); }
+
+    /* ---- visor de documentación (.md) ---- */
+    #sheetDoc .card { max-width:720px; }
+    #docView { font:13px/1.65 system-ui,sans-serif; color:var(--fg); max-height:72vh; overflow:auto; padding-right:6px; }
+    #docView h1 { font-size:20px; margin:14px 0 8px; }
+    #docView h2 { font-size:17px; margin:16px 0 8px; color:#7ee787; border-bottom:1px solid var(--bord); padding-bottom:4px; }
+    #docView h3 { font-size:15px; margin:14px 0 6px; color:#8fc7ff; }
+    #docView h4 { font-size:13px; margin:12px 0 4px; }
+    #docView p { margin:7px 0; }
+    #docView ul, #docView ol { margin:7px 0; padding-left:20px; }
+    #docView li { margin:3px 0; }
+    #docView code { background:var(--bg); border:1px solid var(--bord); border-radius:4px; padding:0 4px; font:12px monospace; }
+    #docView pre { background:var(--bg); border:1px solid var(--bord); border-radius:8px; padding:10px; overflow:auto; }
+    #docView pre code { border:none; background:transparent; padding:0; font-size:12px; }
+    #docView table { border-collapse:collapse; width:100%; margin:9px 0; font-size:12px; }
+    #docView th, #docView td { border:1px solid var(--bord); padding:5px 7px; text-align:left; vertical-align:top; }
+    #docView th { background:var(--chrome2); }
+    #docView a { color:#6cb6ff; }
+    #docView blockquote { border-left:3px solid var(--bord2); margin:8px 0; padding:2px 10px; color:var(--dim); }
+    #docView hr { border:none; border-top:1px solid var(--bord); margin:14px 0; }
+
+  </style>
+</head>
+<body>
+  <div id="topbar">
+    <div id="tabs">
+      <button id="secFav" class="sec-ico" title="Marcar como favorita">☆</button>
+      <select id="secSelect" title="Sección"></select>
+      <button id="secAdd" class="sec-ico" title="Nueva sección">＋</button>
+      <button id="secClose" class="sec-ico" title="Cerrar sección">✕</button>
+    </div>
+    <div id="tools">
+      <button id="btnOC" class="oc" title="OpenClaw"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="oclg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4d4d"/><stop offset="1" stop-color="#991b1b"/></linearGradient></defs><path d="M60 10 C30 10 15 35 15 55 C15 75 30 95 45 100 L45 110 L55 110 L55 100 C55 100 60 102 65 100 L65 110 L75 110 L75 100 C90 95 105 75 105 55 C105 35 90 10 60 10Z" fill="url(#oclg)"/><path d="M20 45 C5 40 0 50 5 60 C10 70 20 65 25 55 C28 48 25 45 20 45Z" fill="url(#oclg)"/><path d="M100 45 C115 40 120 50 115 60 C110 70 100 65 95 55 C92 48 95 45 100 45Z" fill="url(#oclg)"/><circle cx="45" cy="35" r="6" fill="#050810"/><circle cx="75" cy="35" r="6" fill="#050810"/><circle cx="46" cy="34" r="2.5" fill="#00e5cc"/><circle cx="76" cy="34" r="2.5" fill="#00e5cc"/></svg></button>
+      <button id="btnMon" title="Monitor">📊</button>
+      <button id="btnSet" title="Ajustes">⚙</button>
+    </div>
+  </div>
+  <div id="term"></div>
+  <div id="keys">
+    <button data-k="ESC">Esc</button>
+    <button data-k="TAB">Tab</button>
+    <button data-k="CTRL">Ctrl</button>
+    <button data-k="UP">↑</button>
+    <button data-k="DOWN">↓</button>
+    <button data-k="LEFT">←</button>
+    <button data-k="RIGHT">→</button>
+    <button data-k="PIPE">|</button>
+    <button data-k="SLASH">/</button>
+    <button data-k="DASH">-</button>
+    <button data-k="KBCLEAR">⌫ línea</button>
+  </div>
+
+  <!-- Ventana de Ajustes -->
+  <div class="sheet" id="sheetSet">
+    <div class="card">
+      <button class="close" onclick="closeSheets()">✕</button>
+      <h2>⚙ Ajustes</h2>
+
+      <h3>Tema del terminal</h3>
+      <div class="theme-grid" id="themeGrid"></div>
+
+      <h3>Perfiles de instalación</h3>
+      <div class="profile" id="profBasic">
+        <h4>🧩 Básico <span class="k" id="nBasic"></span></h4>
+        <div class="pkgs" id="pkBasic"></div>
+        <button class="btn primary" onclick="installProfile('basic')">Actualizar Básico</button>
+      </div>
+      <div class="profile" id="profDev">
+        <h4>🛠 Dev <span class="k" id="nDev"></span></h4>
+        <div class="pkgs" id="pkDev"></div>
+        <button class="btn primary" onclick="installProfile('dev')">Actualizar Dev</button>
+      </div>
+      <div class="k" style="font-size:11px">En <b>Linux-TPro estos paquetes ya vienen instalados</b> dentro de la app (no necesita internet).
+        El botón solo los verifica y los actualiza en la pestaña actual (verás el resultado en el terminal).</div>
+
+      <h3>Terminal</h3>
+      <div class="row">
+        <button class="btn primary" onclick="copyTermLogs()">📋 Copiar logs del terminal</button>
+      </div>
+      <div class="k" id="copyLogState" style="font-size:11px;color:var(--dim);margin-top:6px">
+        Copia al portapapeles todo lo que hay ahora mismo en el terminal (incluido el historial).
+      </div>
+
+      <h3>Documentación</h3>
+      <div class="row">
+        <button class="btn primary" onclick="openDoc()">&#128214; Leer documentación</button>
+      </div>
+      <div class="k" style="font-size:11px;color:var(--dim);margin-top:6px">
+        Abre aquí dentro el archivo <code>DOCUMENTACION.md</code> del proyecto.
+      </div>
+
+      <h3>Acerca de</h3>
+      <div class="about">
+        <b>Linux-TPro</b> — Debian Linux en Android (proot).<br>
+        Creador: <b>Andres MAG</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documentación (visor de DOCUMENTACION.md) -->
+  <div class="sheet" id="sheetDoc">
+    <div class="card">
+      <button class="close" onclick="closeSheets()">&#10005;</button>
+      <h2>&#128214; Documentación</h2>
+      <div id="docView">Cargando…</div>
+    </div>
+  </div>
+
+  <!-- Monitor -->
+  <div class="sheet" id="sheetMon">
+    <div class="card">
+      <button class="close" onclick="closeSheets()">✕</button>
+      <h2>📊 Monitor</h2>
+      <div id="mon"></div>
+      <div class="note">En este móvil Android bloquea <b>/proc/stat</b> y <b>/proc/uptime</b> a las
+        apps, así que no hay % de CPU ni uptime. Aquí ves lo que sí permite el sistema
+        (memoria, almacenamiento, carga y núcleos).</div>
+    </div>
+  </div>
+
+  <!-- OpenClaw -->
+  <div class="sheet" id="sheetOc">
+    <div class="card">
+      <button class="close" onclick="closeSheets()">✕</button>
+      <h2>🦞 OpenClaw</h2>
+      <h3>Dependencias</h3>
+      <div id="ocDeps"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="ocInstallBtn" onclick="ocInstall()">Instalar OpenClaw</button>
+        <button class="btn ghost" onclick="refreshOC()">Recomprobar</button>
+        <button class="btn ghost" onclick="ocDoctor()">Reparar (doctor)</button>
+      </div>
+      <h3>API key del proveedor (DeepSeek)</h3>
+      <div class="row" style="gap:6px; align-items:center">
+        <input id="ocKey" type="password" placeholder="sk-…" autocomplete="off"
+               style="flex:1 1 auto;min-width:0;background:var(--chrome2);color:var(--fg);
+                      border:1px solid var(--bord2);border-radius:8px;padding:9px 8px;font:13px monospace">
+        <button class="btn primary" onclick="ocSaveKey()">Guardar y activar</button>
+      </div>
+      <div class="k" id="ocKeyState" style="font-size:11px;color:var(--dim);margin-top:6px"></div>
+      <div class="k" id="ocWs" style="font:11px/1.5 monospace;color:var(--dim);margin-top:6px"></div>
+
+      <h3>Bot de Telegram (opcional)</h3>
+      <div class="row" style="gap:6px; align-items:center">
+        <input id="ocTg" type="password" placeholder="123456789:AAE…" autocomplete="off"
+               style="flex:1 1 auto;min-width:0;background:var(--chrome2);color:var(--fg);
+                      border:1px solid var(--bord2);border-radius:8px;padding:9px 8px;font:13px monospace">
+        <button class="btn primary" onclick="ocSaveTg()">Guardar token</button>
+      </div>
+      <div class="k" id="ocTgState" style="font-size:11px;color:var(--dim);margin-top:6px"></div>
+
+      <h3>Segundo plano</h3>
+      <div class="row" style="align-items:center; gap:10px">
+        <span id="ocBat" style="color:var(--dim);font:12px monospace"></span>
+        <button class="btn ghost" onclick="ocAskBattery()">Permitir 2º plano</button>
+      </div>
+      <div class="k" style="font-size:11px;color:var(--dim);margin-top:6px">
+        Sin esto, Android suele cerrar el gateway al salir de la app. Acepta el diálogo del sistema.
+      </div>
+
+      <h3>Gateway</h3>
+      <div class="row" style="align-items:center; gap:12px">
+        <label class="switch"><input type="checkbox" id="ocGw" onchange="ocToggleGateway()"><span class="sl"></span></label>
+        <span class="k" id="ocGwState" style="color:var(--dim);font:13px monospace">desactivado</span>
+      </div>
+      <div class="k" style="font-size:11px;color:var(--dim);margin-top:10px;line-height:1.5">
+        Al activarlo, el gateway se ejecuta en su propia pestaña y <b>sigue vivo en segundo plano</b>
+        (la pestaña se ancla sola). Desactívalo desde aquí para pararlo.
+      </div>
+      <div id="ocLog" style="font:12px/1.5 monospace;color:var(--dim);margin-top:10px;white-space:pre-wrap"></div>
+    </div>
+  </div>
+
+  <script src="xterm.js"></script>
+  <script src="addon-fit.js"></script>
+  <script>
+    /* ---------------- temas ---------------- */
+    const THEMES = {
+      clasico:  { name:'Clásico',  bg:'#0b0f14', fg:'#cfe3f5', cur:'#cfe3f5', sel:'#2b3a4a',
+                  ansi:['#0b0f14','#ff6b6b','#7ee787','#e3b341','#6cb6ff','#d2a8ff','#56d4dd','#cfe3f5',
+                        '#5a6b7a','#ff8787','#9ff0a4','#f0cd6a','#8fc7ff','#e0c0ff','#7fe6ee','#ffffff'] },
+      dracula:  { name:'Dracula',  bg:'#282a36', fg:'#f8f8f2', cur:'#f8f8f2', sel:'#44475a',
+                  ansi:['#21222c','#ff5555','#50fa7b','#f1fa8c','#bd93f9','#ff79c6','#8be9fd','#f8f8f2',
+                        '#6272a4','#ff6e6e','#69ff94','#ffffa5','#d6acff','#ff92df','#a4ffff','#ffffff'] },
+      solar:    { name:'Solarized',bg:'#002b36', fg:'#93a1a1', cur:'#93a1a1', sel:'#073642',
+                  ansi:['#073642','#dc322f','#859900','#b58900','#268bd2','#d33682','#2aa198','#eee8d5',
+                        '#002b36','#cb4b16','#586e75','#657b83','#839496','#6c71c4','#93a1a1','#fdf6e3'] },
+      gruvbox:  { name:'Gruvbox',  bg:'#282828', fg:'#ebdbb2', cur:'#ebdbb2', sel:'#3c3836',
+                  ansi:['#282828','#cc241d','#98971a','#d79921','#458588','#b16286','#689d6a','#a89984',
+                        '#928374','#fb4934','#b8bb26','#fabd2f','#83a598','#d3869b','#8ec07c','#ebdbb2'] },
+      nord:     { name:'Nord',     bg:'#2e3440', fg:'#d8dee9', cur:'#d8dee9', sel:'#434c5e',
+                  ansi:['#3b4252','#bf616a','#a3be8c','#ebcb8b','#81a1c1','#b48ead','#88c0d0','#e5e9f0',
+                        '#4c566a','#bf616a','#a3be8c','#ebcb8b','#81a1c1','#b48ead','#8fbcbb','#eceff4'] },
+      papel:    { name:'Papel',    bg:'#f6f3e8', fg:'#2b2b2b', cur:'#2b2b2b', sel:'#d9d3bd',
+                  ansi:['#2b2b2b','#b03030','#2f7d32','#9a6a00','#2b5fa8','#8a3fa0','#20707a','#4a4a4a',
+                        '#6b6b6b','#d04040','#3f9d42','#b07f10','#3b74c0','#a455bb','#2f8f9a','#111111'] },
+    };
+    function themeToXterm(t) {
+      const a = t.ansi;
+      return { background:t.bg, foreground:t.fg, cursor:t.cur, selectionBackground:t.sel,
+        black:a[0],red:a[1],green:a[2],yellow:a[3],blue:a[4],magenta:a[5],cyan:a[6],white:a[7],
+        brightBlack:a[8],brightRed:a[9],brightGreen:a[10],brightYellow:a[11],
+        brightBlue:a[12],brightMagenta:a[13],brightCyan:a[14],brightWhite:a[15] };
+    }
+    function applyTheme(key) {
+      const t = THEMES[key] || THEMES.clasico;
+      const th = themeToXterm(t);
+      try { term.options.theme = th; } catch (e) { try { term.setOption('theme', th); } catch (e2) {} }
+      const r = document.documentElement.style;
+      r.setProperty('--bg', t.bg); r.setProperty('--fg', t.fg);
+      document.body.style.background = t.bg;
+      try { localStorage.setItem('theme', key); } catch (e) {}
+      document.querySelectorAll('#themeGrid .theme').forEach(el => {
+        el.classList.toggle('active', el.dataset.k === key);
+      });
+    }
+    function currentTheme() { try { return localStorage.getItem('theme') || 'clasico'; } catch (e) { return 'clasico'; } }
+
+    /* ---------------- perfiles ---------------- */
+    const PROFILES = {
+      basic: { n:'Básico', pkgs:['git','curl','wget','nano','less','python3','python3-pip','python3-venv',
+                                 'unzip','zip','tree','ca-certificates'] },
+      dev:   { n:'Dev', pkgs:['git','curl','wget','vim','tmux','python3','python3-pip','python3-venv',
+                              'build-essential','cmake','pkg-config','gdb','nodejs','npm','sqlite3'] },
+    };
+    function installProfile(k) {
+      const p = PROFILES[k]; if (!p) return;
+      closeSheets();
+      setTimeout(() => {
+        try { Android.runLine('apt update && apt install -y ' + p.pkgs.join(' ')); } catch (e) {}
+      }, 200);
+    }
+
+    /* ---------------- terminal ---------------- */
+    const term = new Terminal({
+      cursorBlink: true, fontFamily: 'monospace', fontSize: 14, scrollback: 5000,
+      scrollOnUserInput: true, theme: themeToXterm(THEMES.clasico)
+    });
+    const fit = new FitAddon.FitAddon();
+    term.loadAddon(fit);
+    term.open(document.getElementById('term'));
+
+    function b64ToBytes(b64) { const bin = atob(b64); const o = new Uint8Array(bin.length);
+      for (let i=0;i<bin.length;i++) o[i]=bin.charCodeAt(i); return o; }
+    function bytesToB64(b) { let s=''; for (let i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); }
+    window.termWrite = function (b64) { term.write(b64ToBytes(b64)); };
+    window.termReset = function () { term.reset(); };
+    term.onData(d => Android.send(bytesToB64(new TextEncoder().encode(d))));
+
+    /* ---------------- pestañas ---------------- */
+    let activeTab = -1;
+    let lastCsv = '', lastActive = -1;
+
+    /* Pestañas ancladas (se guardan en localStorage). Una pestaña anclada NO se
+       puede cerrar con la ×; hay que desanclarla primero. Cambiar de pestaña nunca
+       cierra las demás: cada pestaña es una sesión independiente que sigue viva. */
+    function pinnedSet() { try { return new Set(JSON.parse(localStorage.getItem('pinnedTabs') || '[]')); } catch (e) { return new Set(); } }
+    function savePinned(s) { try { localStorage.setItem('pinnedTabs', JSON.stringify([...s])); } catch (e) {} }
+    function togglePin(id) {
+      const s = pinnedSet();
+      if (s.has(id)) s.delete(id); else s.add(id);
+      savePinned(s);
+      if (lastCsv) window.onTabs(lastCsv, lastActive);
+    }
+
+    window.onTabs = function (csv, active) {
+      lastCsv = csv || ''; lastActive = active;
+      const ids = (csv || '').split(',').filter(s => s.length).map(Number);
+      const pins = pinnedSet();
+      const sel = document.getElementById('secSelect');
+      sel.innerHTML = '';
+      ids.forEach(id => {
+        const o = document.createElement('option');
+        o.value = String(id);
+        o.textContent = (pins.has(id) ? '★ ' : '') + 'Sección T' + id;
+        if (id === active) o.selected = true;
+        sel.appendChild(o);
+      });
+      const fav = pins.has(active);
+      const favBtn = document.getElementById('secFav');
+      if (favBtn) { favBtn.textContent = fav ? '★' : '☆'; favBtn.classList.toggle('on', fav); }
+      const closeBtn = document.getElementById('secClose');
+      if (closeBtn) {
+        closeBtn.style.opacity = fav ? '.35' : '1';
+        closeBtn.title = fav ? 'Favorita: quita ★ para poder cerrarla' : 'Cerrar sección';
+      }
+      activeTab = active;
+    };
+    function selectTab(id) { activeTab = id; term.reset(); Android.selectTab(id); }
+    function secAdd() { term.reset(); activeTab = -1; Android.newTab(); }
+    function secToggleFav() { if (activeTab > 0) togglePin(activeTab); }
+    function secClose() { if (activeTab > 0 && !pinnedSet().has(activeTab)) Android.closeTab(activeTab); }
+
+    /* ---------------- OpenClaw ---------------- */
+    function ocStatusObj() { try { return JSON.parse(Android.ocStatus()); } catch (e) { return {}; } }
+    function ocDep(name, v) {
+      const ok = !!(v && v.length);
+      return '<div class="dep"><span>' + name + '</span><span class="' + (ok ? 'ok' : 'no') + '">' +
+             (ok ? '✅ ' + v : '❌ falta') + '</span></div>';
+    }
+    function refreshOC() {
+      const s = ocStatusObj();
+      let h = '';
+      h += ocDep('Node.js', s.node);
+      h += ocDep('npm', s.npm);
+      h += ocDep('OpenClaw', s.openclaw);
+      document.getElementById('ocDeps').innerHTML = h;
+      const btn = document.getElementById('ocInstallBtn');
+      if (btn) btn.style.display = s.openclaw ? 'none' : '';
+      const kst = document.getElementById('ocKeyState');
+      if (kst) kst.textContent = s.keySet ? '✅ API key configurada.' : '⚠️ Todavía sin API key.';
+      const wst = document.getElementById('ocWs');
+      if (wst) wst.innerHTML = s.workspace
+        ? ('Workspace: ' + s.workspace + ' ' + (s.wsExists ? '✅' : '❌ no existe'))
+        : '';
+      const tst = document.getElementById('ocTgState');
+      if (tst) tst.textContent = s.tgSet ? '✅ Token de bot configurado.' : 'Opcional: sin bot de Telegram.';
+      let bat = false;
+      try { bat = !!JSON.parse(Android.ocBatteryStatus()).ignoring; } catch (e) {}
+      const bst = document.getElementById('ocBat');
+      if (bst) bst.textContent = bat ? '✅ 2º plano permitido' : '⚠️ optimización de batería activa';
+      const gw = !!s.gateway;
+      document.getElementById('ocGw').checked = gw;
+      document.getElementById('ocGwState').textContent = gw ? 'activado 🟢 (en segundo plano)' : 'desactivado';
+      // La pestaña del gateway se ancla sola.
+      if (gw && s.gwId > 0) {
+        const pins = pinnedSet();
+        if (!pins.has(s.gwId)) { pins.add(s.gwId); savePinned(pins); if (lastCsv) window.onTabs(lastCsv, lastActive); }
+      }
+    }
+    function ocAskBattery() {
+      try { Android.ocRequestBattery(); } catch (e) {}
+      setTimeout(refreshOC, 1500);
+    }
+    function ocSaveTg() {
+      const el = document.getElementById('ocTg');
+      const t = (el && el.value ? el.value : '').trim();
+      const st = document.getElementById('ocTgState');
+      if (!t) { if (st) st.textContent = 'Introduce el token del bot.'; return; }
+      if (st) st.textContent = 'Guardando token y reiniciando el gateway…';
+      try { Android.ocSetTgToken(t, true); } catch (e) {}
+      setTimeout(refreshOC, 4000);
+      setTimeout(refreshOC, 12000);
+    }
+    function ocSaveKey() {
+      const el = document.getElementById('ocKey');
+      const k = (el && el.value ? el.value : '').trim();
+      const st = document.getElementById('ocKeyState');
+      if (!k) { if (st) st.textContent = 'Introduce tu API key.'; return; }
+      if (st) st.textContent = 'Guardando y arrancando…';
+      try { Android.ocSetKey(k, true); } catch (e) {}
+      setTimeout(refreshOC, 2500);
+      setTimeout(refreshOC, 7000);
+    }
+    function ocInstall() {
+      closeSheets();
+      try { Android.ocInstall(); } catch (e) {}
+      setTimeout(refreshOC, 1800);
+    }
+    function ocToggleGateway() {
+      const on = document.getElementById('ocGw').checked;
+      document.getElementById('ocGwState').textContent = on ? 'arrancando…' : 'parando…';
+      try { Android.ocGateway(on); } catch (e) {}
+      setTimeout(refreshOC, 1400);
+      setTimeout(refreshOC, 3200);
+    }
+
+    /* ---------------- reajuste teclado ---------------- */
+    function relayout() { try { fit.fit(); Android.resize(term.cols, term.rows); } catch (e) {} }
+    function relayoutSoon() { relayout(); [60,160,320,600].forEach(t => setTimeout(relayout, t)); }
+    window.addEventListener('resize', relayoutSoon);
+    window.addEventListener('orientationchange', () => setTimeout(relayoutSoon, 250));
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', relayoutSoon);
+      window.visualViewport.addEventListener('scroll', relayoutSoon);
+    }
+    document.addEventListener('focusin', () => relayoutSoon());
+
+    /* ---------------- teclas extra ---------------- */
+    let ctrl = false;
+    function sendRaw(s) { Android.send(bytesToB64(new TextEncoder().encode(s))); }
+    document.querySelectorAll('#keys button').forEach(b => {
+      b.addEventListener('click', () => {
+        switch (b.dataset.k) {
+          case 'ESC': sendRaw('\x1b'); break;
+          case 'TAB': sendRaw('\t'); break;
+          case 'CTRL': ctrl = !ctrl; b.style.background = ctrl ? '#2b7a4b' : ''; break;
+          case 'UP': sendRaw('\x1b[A'); break;
+          case 'DOWN': sendRaw('\x1b[B'); break;
+          case 'RIGHT': sendRaw('\x1b[C'); break;
+          case 'LEFT': sendRaw('\x1b[D'); break;
+          case 'PIPE': sendRaw('|'); break;
+          case 'SLASH': sendRaw('/'); break;
+          case 'DASH': sendRaw('-'); break;
+          case 'KBCLEAR': sendRaw('\x15'); break;
+        }
+      });
+    });
+    term.attachCustomKeyEventHandler(ev => {
+      if (ctrl && ev.type === 'keydown' && ev.key.length === 1) {
+        const code = ev.key.toUpperCase().charCodeAt(0) - 64;
+        if (code > 0 && code < 32) {
+          Android.send(bytesToB64(new Uint8Array([code])));
+          ctrl = false;
+          document.querySelector('#keys button[data-k="CTRL"]').style.background = '';
+          return false;
+        }
+      }
+      return true;
+    });
+
+    /* ---------------- monitor ---------------- */
+    let monTimer = null;
+    function fmtSize(b) {
+      const u = ['B','KB','MB','GB','TB']; let i = 0; b = Number(b);
+      while (b >= 1024 && i < u.length-1) { b /= 1024; i++; }
+      return b.toFixed(b < 10 && i > 0 ? 1 : 0) + ' ' + u[i];
+    }
+    function bar(pct) {
+      const p = Math.max(0, Math.min(100, pct));
+      return '<div class="bar"><i style="width:' + p.toFixed(1) + '%"></i></div>';
+    }
+    function renderMon() {
+      let s = null;
+      try { s = JSON.parse(Android.sysStats()); } catch (e) { s = null; }
+      const el = document.getElementById('mon');
+      if (!s) { el.textContent = 'No disponible'; return; }
+      const memUsed = s.memTotal - s.memAvail;
+      const memPct = s.memTotal ? memUsed * 100 / s.memTotal : 0;
+      const dUsed = s.diskTotal - s.diskAvail;
+      const dPct = s.diskTotal ? dUsed * 100 / s.diskTotal : 0;
+      let h = '';
+      h += '<div class="k">Memoria</div>' + bar(memPct);
+      h += fmtSize(memUsed) + ' / ' + fmtSize(s.memTotal) + ' (' + memPct.toFixed(0) + '%)<br>';
+      h += '<div class="k" style="margin-top:8px">Almacenamiento</div>' + bar(dPct);
+      h += fmtSize(dUsed) + ' / ' + fmtSize(s.diskTotal) + ' (' + dPct.toFixed(0) + '%)<br>';
+      h += '<div class="k" style="margin-top:8px">Carga (1/5/15 min)</div>';
+      h += (s.load ? s.load : 'no disponible') + '<br>';
+      h += '<div class="k" style="margin-top:8px">Núcleos</div>' + s.cores + ' × ' + (s.cpu || 'CPU') + '<br>';
+      el.innerHTML = h;
+    }
+    function openMon() {
+      document.getElementById('sheetMon').classList.add('open');
+      renderMon();
+      if (monTimer) clearInterval(monTimer);
+      monTimer = setInterval(renderMon, 2000);
+    }
+    function closeSheets() {
+      document.getElementById('sheetMon').classList.remove('open');
+      document.getElementById('sheetSet').classList.remove('open');
+      document.getElementById('sheetDoc').classList.remove('open');
+      document.getElementById('sheetOc').classList.remove('open');
+      if (monTimer) { clearInterval(monTimer); monTimer = null; }
+    }
+
+    /* ---------------- init ---------------- */
+    (function initSettings() {
+      const grid = document.getElementById('themeGrid');
+      Object.keys(THEMES).forEach(k => {
+        const d = document.createElement('div');
+        d.className = 'theme'; d.dataset.k = k;
+        d.innerHTML = '<div class="swatch" style="background:' + THEMES[k].bg +
+                      ';border:1px solid ' + THEMES[k].fg + '"></div>' + THEMES[k].name;
+        d.addEventListener('click', () => applyTheme(k));
+        grid.appendChild(d);
+      });
+      document.getElementById('pkBasic').textContent = PROFILES.basic.pkgs.join('  ');
+      document.getElementById('pkDev').textContent = PROFILES.dev.pkgs.join('  ');
+      document.getElementById('nBasic').textContent = '(' + PROFILES.basic.pkgs.length + ')';
+      document.getElementById('nDev').textContent = '(' + PROFILES.dev.pkgs.length + ')';
+      applyTheme(currentTheme());
+    })();
+
+    document.getElementById('btnSet').addEventListener('click', () => {
+      document.getElementById('sheetSet').classList.add('open');
+    });
+    document.getElementById('btnMon').addEventListener('click', openMon);
+    document.getElementById('btnOC').addEventListener('click', () => {
+      document.getElementById('sheetOc').classList.add('open');
+      refreshOC();
+    });
+    document.getElementById('secSelect').addEventListener('change', e => selectTab(Number(e.target.value)));
+    document.getElementById('secAdd').addEventListener('click', secAdd);
+    document.getElementById('secFav').addEventListener('click', secToggleFav);
+    document.getElementById('secClose').addEventListener('click', secClose);
+    function ocDoctor() {
+      closeSheets();
+      try { Android.ocDoctor(); } catch (e) {}
+    }
+
+    /* ---------------- copiar logs del terminal ---------------- */
+    function termLogsText() {
+      const b = term.buffer.active;
+      const lines = [];
+      for (let i = 0; i < b.length; i++) {
+        const ln = b.getLine(i);
+        if (ln) lines.push(ln.translateToString(true));
+      }
+      while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
+      return lines.join('\n');
+    }
+    function copyTermLogs() {
+      const st = document.getElementById('copyLogState');
+      const txt = termLogsText();
+      if (!txt) { if (st) st.textContent = 'El terminal está vacío.'; return; }
+      let ok = false;
+      try { Android.copyToClipboard(txt); ok = true; } catch (e) {}
+      if (!ok) { try { navigator.clipboard.writeText(txt); ok = true; } catch (e) {} }
+      if (st) st.textContent = ok
+        ? ('✅ Copiados ' + txt.length + ' caracteres al portapapeles.')
+        : '⚠️ No se pudo copiar al portapapeles.';
+    }
+
+
+    /* ---------------- visor de documentación (.md) ---------------- */
+    function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function mdInline(s) {
+      s = escHtml(s);
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
+      s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+      s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+      return s;
+    }
+    function mdToHtml(md) {
+      const lines = md.replace(/\r\n/g, '\n').split('\n');
+      let h = '', inCode = false, codeBuf = [], listType = null;
+      const closeList = () => { if (listType) { h += (listType === 'ul' ? '</ul>' : '</ol>'); listType = null; } };
+      const parseRow = r => r.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+      for (let i = 0; i < lines.length; i++) {
+        let ln = lines[i];
+        if (/^\s*```/.test(ln)) {
+          if (!inCode) { inCode = true; codeBuf = []; }
+          else { inCode = false; h += '<pre><code>' + escHtml(codeBuf.join('\n')) + '</code></pre>'; }
+          continue;
+        }
+        if (inCode) { codeBuf.push(ln); continue; }
+        if (/^\s*$/.test(ln)) { closeList(); continue; }
+        let mh = ln.match(/^(#{1,6})\s+(.*)$/);
+        if (mh) { closeList(); const l = mh[1].length; h += '<h' + l + '>' + mdInline(mh[2]) + '</h' + l + '>'; continue; }
+        if (/^\s*---+\s*$/.test(ln)) { closeList(); h += '<hr>'; continue; }
+        if (/^\s*\|.*\|\s*$/.test(ln) && i + 1 < lines.length && /^\s*\|[\s:\-|]+\|\s*$/.test(lines[i + 1])) {
+          closeList();
+          const head = parseRow(ln); i += 2;
+          let t = '<table><thead><tr>' + head.map(c => '<th>' + mdInline(c) + '</th>').join('') + '</tr></thead><tbody>';
+          while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+            t += '<tr>' + parseRow(lines[i]).map(c => '<td>' + mdInline(c) + '</td>').join('') + '</tr>'; i++;
+          }
+          h += t + '</tbody></table>'; i--; continue;
+        }
+        let lm = ln.match(/^\s*([-*+])\s+(.*)$/);
+        let om = ln.match(/^\s*(\d+)[.)]\s+(.*)$/);
+        if (lm) { if (listType !== 'ul') { closeList(); h += '<ul>'; listType = 'ul'; } h += '<li>' + mdInline(lm[2]) + '</li>'; continue; }
+        if (om) { if (listType !== 'ol') { closeList(); h += '<ol>'; listType = 'ol'; } h += '<li>' + mdInline(om[2]) + '</li>'; continue; }
+        if (/^\s*>\s?/.test(ln)) { closeList(); h += '<blockquote>' + mdInline(ln.replace(/^\s*>\s?/, '')) + '</blockquote>'; continue; }
+        closeList(); h += '<p>' + mdInline(ln) + '</p>';
+      }
+      if (inCode && codeBuf.length) h += '<pre><code>' + escHtml(codeBuf.join('\n')) + '</code></pre>';
+      closeList();
+      return h;
+    }
+    let docLoaded = false;
+    function openDoc() {
+      const set = document.getElementById('sheetSet'); if (set) set.classList.remove('open');
+      const oc = document.getElementById('sheetOc'); if (oc) oc.classList.remove('open');
+      document.getElementById('sheetDoc').classList.add('open');
+      const v = document.getElementById('docView');
+      if (docLoaded) return;
+      let md = '';
+      try { md = Android.readDoc(); } catch (e) { md = ''; }
+      if (!md) { v.textContent = 'No se pudo cargar la documentación.'; return; }
+      v.innerHTML = mdToHtml(md);
+      docLoaded = true;
+    }
+
+    setTimeout(() => { relayoutSoon(); Android.ready(); }, 150);
+  </script>
+</body>
+</html>

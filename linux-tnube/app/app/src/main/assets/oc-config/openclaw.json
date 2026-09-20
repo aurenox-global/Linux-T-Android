@@ -1,0 +1,98 @@
+{
+  "gateway": {
+    "mode": "local",
+    "bind": "loopback",
+    "port": 18789,
+    "auth": {
+      "mode": "none"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/root/.openclaw/workspace",
+      "model": {
+        "primary": "pollinations/openai-fast",
+        "fallbacks": [
+          "groq/llama-3.3-70b-versatile",
+          "cerebras/llama-3.3-70b",
+          "gemini/gemini-2.5-flash"
+        ]
+      }
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "tnube-router": {
+        "baseUrl": "http://127.0.0.1:8790/v1",
+        "api": "openai-completions",
+        "apiKey": "tnube-local",
+        "models": [
+          {
+            "id": "auto",
+            "name": "Auto (router TNube)",
+            "input": ["text"],
+            "contextWindow": 131072,
+            "maxTokens": 8192,
+            "api": "openai-completions"
+          }
+        ]
+      },
+      "pollinations": {
+        "baseUrl": "https://text.pollinations.ai/openai",
+        "api": "openai-completions",
+        "apiKey": "no-key",
+        "models": [
+          { "id": "openai-fast", "name": "Pollinations (sin key)", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" }
+        ]
+      },
+      "deepseek": {
+        "baseUrl": "https://api.deepseek.com",
+        "api": "openai-completions",
+        "apiKey": "",
+        "models": [
+          { "id": "deepseek-chat", "name": "DeepSeek Chat", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" },
+          { "id": "deepseek-reasoner", "name": "DeepSeek Reasoner", "reasoning": true, "input": ["text"], "contextWindow": 131072, "maxTokens": 65536, "api": "openai-completions" }
+        ]
+      },
+      "groq": {
+        "baseUrl": "https://api.groq.com/openai/v1",
+        "api": "openai-completions",
+        "apiKey": "",
+        "models": [
+          { "id": "llama-3.1-8b-instant", "name": "Llama 3.1 8B (Groq)", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" },
+          { "id": "llama-3.3-70b-versatile", "name": "Llama 3.3 70B (Groq)", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" },
+          { "id": "qwen-2.5-coder-32b", "name": "Qwen2.5 Coder 32B (Groq)", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" }
+        ]
+      },
+      "cerebras": {
+        "baseUrl": "https://api.cerebras.ai/v1",
+        "api": "openai-completions",
+        "apiKey": "",
+        "models": [
+          { "id": "llama3.1-8b", "name": "Llama 3.1 8B (Cerebras)", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" },
+          { "id": "llama-3.3-70b", "name": "Llama 3.3 70B (Cerebras)", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" }
+        ]
+      },
+      "gemini": {
+        "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "api": "openai-completions",
+        "apiKey": "",
+        "models": [
+          { "id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash", "input": ["text", "image"], "contextWindow": 1000000, "maxTokens": 8192, "api": "openai-completions" },
+          { "id": "gemini-2.5-pro", "name": "Gemini 2.5 Pro", "input": ["text", "image"], "contextWindow": 1000000, "maxTokens": 8192, "api": "openai-completions" }
+        ]
+      },
+      "openrouter": {
+        "baseUrl": "https://openrouter.ai/api/v1",
+        "api": "openai-completions",
+        "apiKey": "",
+        "models": [
+          { "id": "meta-llama/llama-3.3-70b-instruct:free", "name": "Llama 3.3 70B (free)", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" },
+          { "id": "deepseek/deepseek-chat-v3-0324:free", "name": "DeepSeek V3 (free)", "input": ["text"], "contextWindow": 131072, "maxTokens": 8192, "api": "openai-completions" },
+          { "id": "google/gemini-2.0-flash-exp:free", "name": "Gemini 2.0 Flash (free)", "input": ["text", "image"], "contextWindow": 1000000, "maxTokens": 8192, "api": "openai-completions" }
+        ]
+      }
+    }
+  }
+}
