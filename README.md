@@ -36,14 +36,16 @@ sistema de **pestañas**. Se pueden instalar a la vez (cada una tiene su propio 
 
 ## ⬇️ Descargas
 
-Los APK se distribuyen desde carpetas de **MEGA** (enlaces permanentes):
+Los cuatro APK se descargan desde **GitHub Releases** de este repositorio:
 
-- **Linux-T** → <https://mega.nz/folder/8f51QKxI#dOvUA8vteT5b_OHyz9hZtw>
-- **Linux-TC** → <https://mega.nz/folder/UXYCUS4A#xIhcfw3blovIvmhjB5Xv8g>
-- **Linux-TPro** → <https://mega.nz/folder/gDp1USDI#I-N4ByWtnb__IEg46nEQvQ>
-- **Linux-TNube Pro** → [GitHub Releases](https://github.com/aurenox-global/Linux-T-Android/releases) *(subida a GitHub)*
+| Edición | Descarga directa | Release |
+|---|---|---|
+| **Linux-T** | [Linux-T-0.4.4-debug.apk](https://github.com/aurenox-global/Linux-T-Android/releases/download/linux-t-0.4.4/Linux-T-0.4.4-debug.apk) | [release](https://github.com/aurenox-global/Linux-T-Android/releases/tag/linux-t-0.4.4) |
+| **Linux-TC** | [Linux-TC-0.4.9-debug.apk](https://github.com/aurenox-global/Linux-T-Android/releases/download/linux-tc-0.4.9/Linux-TC-0.4.9-debug.apk) | [release](https://github.com/aurenox-global/Linux-T-Android/releases/tag/linux-tc-0.4.9) |
+| **Linux-TPro** | [Linux-TPro-1.0.4-debug.apk](https://github.com/aurenox-global/Linux-T-Android/releases/download/linux-tpro-1.0.4/Linux-TPro-1.0.4-debug.apk) | [release](https://github.com/aurenox-global/Linux-T-Android/releases/tag/linux-tpro-1.0.4) |
+| **Linux-TNube Pro** | [Linux-TNubePro-1.1.0-debug.apk](https://github.com/aurenox-global/Linux-T-Android/releases/download/linux-tnube-1.1.0/Linux-TNubePro-1.1.0-debug.apk) | [release](https://github.com/aurenox-global/Linux-T-Android/releases/tag/linux-tnube-1.1.0) |
 
-También se publican las cuatro ediciones en **GitHub Releases** del repositorio.
+Todas las releases: <https://github.com/aurenox-global/Linux-T-Android/releases>
 Página de descargas (web autocontenida): [`index.html`](index.html)
 
 > Los APK son builds **debug** (firmadas con la clave de depuración) con fines de prueba.
